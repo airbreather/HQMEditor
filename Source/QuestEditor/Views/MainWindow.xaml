@@ -1,0 +1,99 @@
+<Window x:Class="QuestEditor.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:QuestEditor.ViewModels"
+        Title="Quest Editor"
+        Name="ThisWindow"
+        Width="640"
+        Height="480"
+        DataContext="{Binding ViewModel, RelativeSource={RelativeSource Self}}">
+    <Window.Resources>
+        <CollectionViewSource x:Key="QuestsBridge" Source="{Binding SelectedQuestSet.Quests}" />
+        <CollectionViewSource x:Key="QuestLinksBridge" Source="{Binding SelectedQuestSet.QuestLinks}" />
+
+        <CompositeCollection x:Key="QuestsAndLinks">
+            <CollectionContainer Collection="{Binding Source={StaticResource QuestLinksBridge}}" />
+            <CollectionContainer Collection="{Binding Source={StaticResource QuestsBridge}}" />
+        </CompositeCollection>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button Command="{Binding LoadQuestLineCommand}" Content="Load Quest Line" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button Command="{Binding AddQuestSetCommand}" Content="Add Quest Set" />
+            <Button Margin="5,0,0,0" Command="{Binding SelectedQuestSet.AddQuestCommand}" Content="Add Quest" />
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <Button Click="OnAddQuestLinkButtonClick" Content="Add Quest Link" />
+                <Button Margin="5,0,0,0" Click="OnRemoveQuestLinkButtonClick" Content="Remove Quest Link" />
+                <Button Margin="5,0,0,0" Click="OnRestoreMouseButtonClick" Content="Restore Mouse to Drag Mode" />
+        </StackPanel>
+
+        <ListBox Grid.Row="1"
+                 Grid.Column="0"
+                 DockPanel.Dock="Left"
+                 ItemsSource="{Binding QuestSets}"
+                 DisplayMemberPath="Name"
+                 SelectedItem="{Binding SelectedQuestSet}" />
+
+        <Viewbox Grid.Row="1"
+                 Grid.Column="1"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 Stretch="Fill">
+            <Border BorderBrush="Black" BorderThickness="1">
+                <ItemsControl Width="305" Height="205" ItemsSource="{Binding Source={StaticResource QuestsAndLinks}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ClipToBounds="True" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding Path=XPos}" />
+                            <Setter Property="Canvas.Top" Value="{Binding Path=YPos}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.Resources>
+                        <DataTemplate DataType="{x:Type vm:QuestViewModel}">
+                            <Ellipse MouseLeftButtonDown="OnQuestMouseLeftButtonDown" MouseLeftButtonUp="OnQuestMouseLeftButtonUp" MouseMove="OnQuestMouseMove" Width="10" Height="10" Stroke="Black" Fill="Black">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform X="-5" Y="-5" />
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                        </DataTemplate>
+
+                        <DataTemplate DataType="{x:Type vm:QuestLinkViewModel}">
+                            <Line MouseLeftButtonUp="OnQuestLinkMouseLeftButtonUp" StrokeThickness="4" X1="{Binding FromQuest.XPos}" X2="{Binding ToQuest.XPos}" Y1="{Binding FromQuest.YPos}" Y2="{Binding ToQuest.YPos}">
+                                <Line.Stroke>
+                                    <LinearGradientBrush StartPoint="{Binding FromQuest.Pos}" EndPoint="{Binding ToQuest.Pos}" MappingMode="Absolute">
+                                        <GradientStop Color="Yellow" Offset="0" />
+                                        <GradientStop Color="Yellow" Offset="0.2" />
+                                        <GradientStop Color="Firebrick" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Line.Stroke>
+                            </Line>
+                        </DataTemplate>
+                    </ItemsControl.Resources>
+                    </ItemsControl>
+            </Border>
+        </Viewbox>
+    </Grid>
+</Window>
