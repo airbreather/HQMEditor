@@ -73,7 +73,7 @@
 
                     <ItemsControl.Resources>
                         <DataTemplate DataType="{x:Type vm:QuestViewModel}">
-                            <Ellipse MouseLeftButtonDown="OnQuestMouseLeftButtonDown" MouseLeftButtonUp="OnQuestMouseLeftButtonUp" MouseMove="OnQuestMouseMove" Width="10" Height="10" Stroke="Black" Fill="Black">
+                            <Ellipse MouseLeftButtonDown="OnQuestMouseLeftButtonDown" Width="10" Height="10" Stroke="Black" Fill="Black">
                                 <Ellipse.RenderTransform>
                                     <TranslateTransform X="-5" Y="-5" />
                                 </Ellipse.RenderTransform>

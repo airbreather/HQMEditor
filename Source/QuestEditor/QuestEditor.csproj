@@ -141,6 +141,22 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\External\Rx.NET\Rx.NET\Source\System.Reactive.Core\System.Reactive.Core.csproj">
+      <Project>{4e516f10-da7a-4d43-963e-a93865abea5b}</Project>
+      <Name>System.Reactive.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\External\Rx.NET\Rx.NET\Source\System.Reactive.Interfaces\System.Reactive.Interfaces.csproj">
+      <Project>{9e9b9c60-98b0-40fa-9c2b-1218d417caa4}</Project>
+      <Name>System.Reactive.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\External\Rx.NET\Rx.NET\Source\System.Reactive.Linq\System.Reactive.Linq.csproj">
+      <Project>{63252ae9-5186-45ca-bfcd-fa51c6b66a43}</Project>
+      <Name>System.Reactive.Linq</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\External\Rx.NET\Rx.NET\Source\System.Reactive.PlatformServices\System.Reactive.PlatformServices.csproj">
+      <Project>{0cccf009-763f-40d2-8655-7a94828023bf}</Project>
+      <Name>System.Reactive.PlatformServices</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HQMFileConverter\HQMFileConverter.csproj">
       <Project>{0b054d29-e836-42b6-a184-e6b77e79054d}</Project>
       <Name>HQMFileConverter</Name>

@@ -1,0 +1,3 @@
+[submodule "External/Rx.NET"]
+	path = External/Rx.NET
+	url = https://github.com/Reactive-Extensions/Rx.NET.git

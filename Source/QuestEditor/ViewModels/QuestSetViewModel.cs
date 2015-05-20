@@ -55,24 +55,14 @@ namespace QuestEditor.ViewModels
         private readonly RelayCommand addQuestCommand;
         public RelayCommand AddQuestCommand { get { return this.addQuestCommand; } }
 
-        private void AddQuest()
-        {
-            QuestViewModel newQuest = new QuestViewModel();
-            EditQuestMessage message = new EditQuestMessage { Quest = newQuest };
-            this.MessengerInstance.Send(message);
-            if (message.Accepted)
-            {
-                this.quests.Add(newQuest);
-            }
-        }
-
-        public void AddQuest(QuestViewModel quest)
+        internal void AddQuest(QuestViewModel quest)
         {
             this.quests.Add(quest);
         }
 
-        public void AddQuestLink(QuestViewModel fromQuest, QuestViewModel toQuest)
+        internal void AddQuestLink(QuestViewModel fromQuest, QuestViewModel toQuest)
         {
+            // TODO: index this collection so we don't need to linear search
             if (this.questLinks.Any(questLink => questLink.Conflicts(fromQuest, toQuest)))
             {
                 MessageBox.Show("TODO: nicer error message here, but for now... there's a conflict yo!");
@@ -82,9 +72,25 @@ namespace QuestEditor.ViewModels
             this.questLinks.Add(new QuestLinkViewModel { FromQuest = fromQuest, ToQuest = toQuest });
         }
 
-        public void RemoveQuestLink(QuestLinkViewModel questLink)
+        internal void RemoveQuest(QuestViewModel quest)
+        {
+            this.quests.Remove(quest);
+        }
+
+        internal void RemoveQuestLink(QuestLinkViewModel questLink)
         {
             this.questLinks.Remove(questLink);
+        }
+
+        private void AddQuest()
+        {
+            QuestViewModel newQuest = new QuestViewModel();
+            EditQuestMessage message = new EditQuestMessage { Quest = newQuest };
+            this.MessengerInstance.Send(message);
+            if (message.Accepted)
+            {
+                this.quests.Add(newQuest);
+            }
         }
     }
 }

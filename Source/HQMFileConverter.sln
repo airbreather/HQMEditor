@@ -14,6 +14,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{23E97C
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{36B62805-C743-4009-A045-CCAF8682D7E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Reactive.Core", "..\External\Rx.NET\Rx.NET\Source\System.Reactive.Core\System.Reactive.Core.csproj", "{4E516F10-DA7A-4D43-963E-A93865ABEA5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Reactive.Interfaces", "..\External\Rx.NET\Rx.NET\Source\System.Reactive.Interfaces\System.Reactive.Interfaces.csproj", "{9E9B9C60-98B0-40FA-9C2B-1218D417CAA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Reactive.Linq", "..\External\Rx.NET\Rx.NET\Source\System.Reactive.Linq\System.Reactive.Linq.csproj", "{63252AE9-5186-45CA-BFCD-FA51C6B66A43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Reactive.PlatformServices", "..\External\Rx.NET\Rx.NET\Source\System.Reactive.PlatformServices\System.Reactive.PlatformServices.csproj", "{0CCCF009-763F-40D2-8655-7A94828023BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,8 +38,30 @@ Global
 		{8ED9BEA5-205A-462F-AE94-C35F955E4A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ED9BEA5-205A-462F-AE94-C35F955E4A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8ED9BEA5-205A-462F-AE94-C35F955E4A79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E516F10-DA7A-4D43-963E-A93865ABEA5B}.Debug|Any CPU.ActiveCfg = Debug45|Any CPU
+		{4E516F10-DA7A-4D43-963E-A93865ABEA5B}.Debug|Any CPU.Build.0 = Debug45|Any CPU
+		{4E516F10-DA7A-4D43-963E-A93865ABEA5B}.Release|Any CPU.ActiveCfg = Release45|Any CPU
+		{4E516F10-DA7A-4D43-963E-A93865ABEA5B}.Release|Any CPU.Build.0 = Release45|Any CPU
+		{9E9B9C60-98B0-40FA-9C2B-1218D417CAA4}.Debug|Any CPU.ActiveCfg = Debug45|Any CPU
+		{9E9B9C60-98B0-40FA-9C2B-1218D417CAA4}.Debug|Any CPU.Build.0 = Debug45|Any CPU
+		{9E9B9C60-98B0-40FA-9C2B-1218D417CAA4}.Release|Any CPU.ActiveCfg = Release45|Any CPU
+		{9E9B9C60-98B0-40FA-9C2B-1218D417CAA4}.Release|Any CPU.Build.0 = Release45|Any CPU
+		{63252AE9-5186-45CA-BFCD-FA51C6B66A43}.Debug|Any CPU.ActiveCfg = Debug45|Any CPU
+		{63252AE9-5186-45CA-BFCD-FA51C6B66A43}.Debug|Any CPU.Build.0 = Debug45|Any CPU
+		{63252AE9-5186-45CA-BFCD-FA51C6B66A43}.Release|Any CPU.ActiveCfg = Release45|Any CPU
+		{63252AE9-5186-45CA-BFCD-FA51C6B66A43}.Release|Any CPU.Build.0 = Release45|Any CPU
+		{0CCCF009-763F-40D2-8655-7A94828023BF}.Debug|Any CPU.ActiveCfg = Debug45|Any CPU
+		{0CCCF009-763F-40D2-8655-7A94828023BF}.Debug|Any CPU.Build.0 = Debug45|Any CPU
+		{0CCCF009-763F-40D2-8655-7A94828023BF}.Release|Any CPU.ActiveCfg = Release45|Any CPU
+		{0CCCF009-763F-40D2-8655-7A94828023BF}.Release|Any CPU.Build.0 = Release45|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4E516F10-DA7A-4D43-963E-A93865ABEA5B} = {36B62805-C743-4009-A045-CCAF8682D7E0}
+		{9E9B9C60-98B0-40FA-9C2B-1218D417CAA4} = {36B62805-C743-4009-A045-CCAF8682D7E0}
+		{63252AE9-5186-45CA-BFCD-FA51C6B66A43} = {36B62805-C743-4009-A045-CCAF8682D7E0}
+		{0CCCF009-763F-40D2-8655-7A94828023BF} = {36B62805-C743-4009-A045-CCAF8682D7E0}
 	EndGlobalSection
 EndGlobal

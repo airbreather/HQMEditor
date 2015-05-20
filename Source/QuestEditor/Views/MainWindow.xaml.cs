@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,10 +21,6 @@ namespace QuestEditor.Views
     {
         private readonly MainViewModel viewModel;
         private readonly Stack<Cursor> cursorStack = new Stack<Cursor>();
-        private Canvas capturedCanvas;
-        private Ellipse capturedEllipse;
-        private Point capturedPos;
-        private bool draggedOut;
 
         public MainWindow()
         {
@@ -35,30 +34,18 @@ namespace QuestEditor.Views
 
         private void OnAddQuestLinkButtonClick(object sender, EventArgs e)
         {
-            this.capturedCanvas = null;
-            this.capturedEllipse = null;
-            this.draggedOut = false;
-
             this.viewModel.MouseMode = MouseMode.CreateLink;
             this.PushCursor(Cursors.Pen);
         }
 
         private void OnRemoveQuestLinkButtonClick(object sender, EventArgs e)
         {
-            this.capturedCanvas = null;
-            this.capturedEllipse = null;
-            this.draggedOut = false;
-
             this.viewModel.MouseMode = MouseMode.DeleteLink;
             this.PushCursor(Cursors.Cross);
         }
 
         private void OnRestoreMouseButtonClick(object sender, EventArgs e)
         {
-            this.capturedCanvas = null;
-            this.capturedEllipse = null;
-            this.draggedOut = false;
-
             this.viewModel.MouseMode = MouseMode.Drag;
             if (this.cursorStack.Count > 0)
             {
@@ -66,12 +53,8 @@ namespace QuestEditor.Views
             }
         }
 
-        private void OnQuestMouseLeftButtonDown(object sender, MouseEventArgs e)
+        private async void OnQuestMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
-            this.capturedCanvas = null;
-            this.capturedEllipse = null;
-            this.draggedOut = false;
-
             if (this.viewModel.MouseMode == MouseMode.DeleteLink)
             {
                 return;
@@ -79,63 +62,56 @@ namespace QuestEditor.Views
 
             Ellipse ellipse = (Ellipse)sender;
 
-            Point pos = e.GetPosition(this.capturedCanvas);
-
-            if (ellipse.CaptureMouse())
-            {
-                this.capturedCanvas = FindParent<Canvas>(ellipse);
-                this.capturedEllipse = ellipse;
-                this.capturedPos = pos;
-            }
-        }
-
-        private void OnQuestMouseMove(object sender, MouseEventArgs e)
-        {
-            if (this.capturedEllipse == null ||
-                this.capturedEllipse != sender)
+            if (!ellipse.CaptureMouse())
             {
                 return;
             }
 
-            QuestViewModel quest = (QuestViewModel)this.capturedEllipse.DataContext;
-            Point pos = e.GetPosition(this.capturedCanvas);
+            Canvas capturedCanvas = FindParent<Canvas>(ellipse);
+            QuestViewModel quest = (QuestViewModel)ellipse.DataContext;
+
+            var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(ellipse, "MouseMove");
+            var mouseLeftButtonUps = Observable.FromEventPattern<MouseEventArgs>(ellipse, "MouseLeftButtonUp");
+
+            bool draggedOut = false;
+            Point lastPos = default(Point);
+            using (mouseLeftButtonUps.Subscribe(ep => lastPos = ep.EventArgs.GetPosition(capturedCanvas)))
+            {
+                switch (this.viewModel.MouseMode)
+                {
+                    case MouseMode.Drag:
+                        await mouseMoves.TakeUntil(mouseLeftButtonUps)
+                                        .ForEachAsync(ep =>
+                                                      {
+                                                          Point pos = e.GetPosition(capturedCanvas);
+                                                          draggedOut |= capturedCanvas.InputHitTest(pos) != ellipse;
+                                                          if (draggedOut)
+                                                          {
+                                                              quest.XPos = (int)pos.X;
+                                                              quest.YPos = (int)pos.Y;
+                                                          }
+                                                      });
+                        break;
+
+                    case MouseMode.CreateLink:
+                        await mouseMoves.TakeUntil(mouseLeftButtonUps);
+                        break;
+                }
+            }
+
+            IInputElement lastHitTest = capturedCanvas.InputHitTest(lastPos);
+
+            ellipse.ReleaseMouseCapture();
 
             switch (this.viewModel.MouseMode)
             {
                 case MouseMode.Drag:
-                    this.draggedOut |= this.capturedCanvas.InputHitTest(pos) != sender;
+                    draggedOut |= lastHitTest != sender;
 
-                    if (this.draggedOut)
+                    if (draggedOut)
                     {
-                        quest.XPos = (int)pos.X;
-                        quest.YPos = (int)pos.Y;
-                    }
-
-                    break;
-            }
-        }
-
-        private void OnQuestMouseLeftButtonUp(object sender, MouseEventArgs e)
-        {
-            if (this.capturedEllipse == null ||
-                this.capturedEllipse != sender)
-            {
-                return;
-            }
-
-            Point pos = e.GetPosition(this.capturedCanvas);
-
-            IInputElement hitTest = this.capturedCanvas.InputHitTest(pos);
-
-            QuestViewModel quest = (QuestViewModel)this.capturedEllipse.DataContext;
-            switch (this.viewModel.MouseMode)
-            {
-                case MouseMode.Drag:
-                    this.draggedOut |= hitTest != sender;
-                    if (this.draggedOut)
-                    {
-                        quest.XPos = (int)pos.X;
-                        quest.YPos = (int)pos.Y;
+                        quest.XPos = (int)lastPos.X;
+                        quest.YPos = (int)lastPos.Y;
                     }
                     else
                     {
@@ -145,7 +121,7 @@ namespace QuestEditor.Views
                     break;
 
                 case MouseMode.CreateLink:
-                    Ellipse other = hitTest as Ellipse;
+                    Ellipse other = lastHitTest as Ellipse;
                     if (other != null && other != sender)
                     {
                         this.viewModel.SelectedQuestSet.AddQuestLink(quest, (QuestViewModel)other.DataContext);
@@ -155,11 +131,6 @@ namespace QuestEditor.Views
                     this.PopCursor();
                     break;
             }
-
-            this.capturedEllipse.ReleaseMouseCapture();
-            this.capturedCanvas = null;
-            this.capturedEllipse = null;
-            this.draggedOut = false;
         }
 
         private void OnQuestLinkMouseLeftButtonUp(object sender, MouseEventArgs e)
