@@ -1,26 +1,20 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using QuestEditor.Messages;
-using QuestEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
-using System.Reactive;
+﻿using System;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
+using GalaSoft.MvvmLight.Messaging;
+
+using QuestEditor.ViewModels;
+
 namespace QuestEditor.Views
 {
     public sealed partial class MainWindow
     {
         private readonly MainViewModel viewModel;
-        private readonly Stack<Cursor> cursorStack = new Stack<Cursor>();
 
         public MainWindow()
         {
@@ -31,27 +25,6 @@ namespace QuestEditor.Views
         }
 
         public MainViewModel ViewModel { get { return this.viewModel; } }
-
-        private void OnAddQuestLinkButtonClick(object sender, EventArgs e)
-        {
-            this.viewModel.MouseMode = MouseMode.CreateLink;
-            this.PushCursor(Cursors.Pen);
-        }
-
-        private void OnRemoveQuestLinkButtonClick(object sender, EventArgs e)
-        {
-            this.viewModel.MouseMode = MouseMode.DeleteLink;
-            this.PushCursor(Cursors.Cross);
-        }
-
-        private void OnRestoreMouseButtonClick(object sender, EventArgs e)
-        {
-            this.viewModel.MouseMode = MouseMode.Drag;
-            if (this.cursorStack.Count > 0)
-            {
-                this.PopCursor();
-            }
-        }
 
         private async void OnQuestMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
@@ -73,30 +46,42 @@ namespace QuestEditor.Views
             var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(ellipse, "MouseMove");
             var mouseLeftButtonUps = Observable.FromEventPattern<MouseEventArgs>(ellipse, "MouseLeftButtonUp");
 
+            bool lostMouseCapture = false;
+            var lostMouseCaptures = Observable.FromEventPattern<MouseEventArgs>(ellipse, "LostMouseCapture")
+                                              .Do(_ => lostMouseCapture = true);
+
+            var mouseButtonUpOrLostMouseCapture = Observable.Merge(mouseLeftButtonUps, lostMouseCaptures);
+
             bool draggedOut = false;
-            Point lastPos = default(Point);
-            using (mouseLeftButtonUps.Subscribe(ep => lastPos = ep.EventArgs.GetPosition(capturedCanvas)))
+            Point lastPos = e.GetPosition(capturedCanvas);
+            using (mouseButtonUpOrLostMouseCapture.Subscribe(ep => lastPos = ep.EventArgs.GetPosition(capturedCanvas)))
             {
                 switch (this.viewModel.MouseMode)
                 {
-                    case MouseMode.Drag:
-                        await mouseMoves.TakeUntil(mouseLeftButtonUps)
+                    case MouseMode.EditQuests:
+                        await mouseMoves.TakeUntil(mouseButtonUpOrLostMouseCapture)
                                         .ForEachAsync(ep =>
                                                       {
-                                                          Point pos = e.GetPosition(capturedCanvas);
+                                                          Point pos = ep.EventArgs.GetPosition(capturedCanvas);
                                                           draggedOut |= capturedCanvas.InputHitTest(pos) != ellipse;
                                                           if (draggedOut)
                                                           {
                                                               quest.XPos = (int)pos.X;
                                                               quest.YPos = (int)pos.Y;
+                                                              lastPos = pos;
                                                           }
                                                       });
                         break;
 
                     case MouseMode.CreateLink:
-                        await mouseMoves.TakeUntil(mouseLeftButtonUps);
+                        await mouseMoves.TakeUntil(mouseButtonUpOrLostMouseCapture);
                         break;
                 }
+            }
+
+            if (lostMouseCapture)
+            {
+                return;
             }
 
             IInputElement lastHitTest = capturedCanvas.InputHitTest(lastPos);
@@ -105,7 +90,7 @@ namespace QuestEditor.Views
 
             switch (this.viewModel.MouseMode)
             {
-                case MouseMode.Drag:
+                case MouseMode.EditQuests:
                     draggedOut |= lastHitTest != sender;
 
                     if (draggedOut)
@@ -127,8 +112,7 @@ namespace QuestEditor.Views
                         this.viewModel.SelectedQuestSet.AddQuestLink(quest, (QuestViewModel)other.DataContext);
                     }
 
-                    this.viewModel.MouseMode = MouseMode.Drag;
-                    this.PopCursor();
+                    this.viewModel.MouseMode = MouseMode.EditQuests;
                     break;
             }
         }
@@ -143,19 +127,7 @@ namespace QuestEditor.Views
             Line line = (Line)sender;
             QuestLinkViewModel questLink = (QuestLinkViewModel)line.DataContext;
             this.viewModel.SelectedQuestSet.RemoveQuestLink(questLink);
-            this.viewModel.MouseMode = MouseMode.Drag;
-            this.PopCursor();
-        }
-
-        private void PushCursor(Cursor newCursor)
-        {
-            this.cursorStack.Push(this.Cursor);
-            this.Cursor = newCursor;
-        }
-
-        private void PopCursor()
-        {
-            this.Cursor = this.cursorStack.Pop();
+            this.viewModel.MouseMode = MouseMode.EditQuests;
         }
 
         private static T FindParent<T>(DependencyObject child) where T : DependencyObject

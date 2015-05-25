@@ -14,20 +14,33 @@ namespace QuestEditor.ViewModels
     public sealed class QuestSetViewModel : ViewModelBase
     {
         public QuestSetViewModel()
-            : this(String.Empty, Enumerable.Empty<QuestViewModel>(), Enumerable.Empty<QuestLinkViewModel>())
+            : this(-1, String.Empty, Enumerable.Empty<QuestViewModel>(), Enumerable.Empty<QuestLinkViewModel>())
         {
         }
 
-        public QuestSetViewModel(string name, IEnumerable<QuestViewModel> quests, IEnumerable<QuestLinkViewModel> questLinks)
+        public QuestSetViewModel(int id, string name, IEnumerable<QuestViewModel> quests, IEnumerable<QuestLinkViewModel> questLinks)
         {
             this.addQuestCommand = new RelayCommand(this.AddQuest);
 
+            this.id = id;
             this.name = name;
             this.quests = new ObservableCollection<QuestViewModel>(quests);
             this.questsReadOnly = new ReadOnlyObservableCollection<QuestViewModel>(this.quests);
 
             this.questLinks = new ObservableCollection<QuestLinkViewModel>(questLinks);
             this.questLinksReadOnly = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.questLinks);
+
+            foreach (var quest in this.quests)
+            {
+                quest.QuestSet = this;
+            }
+        }
+
+        private int id;
+        public int Id
+        {
+            get { return this.id; }
+            set { this.Set(ref this.id, value); }
         }
 
         private string name;
@@ -58,6 +71,7 @@ namespace QuestEditor.ViewModels
         internal void AddQuest(QuestViewModel quest)
         {
             this.quests.Add(quest);
+            quest.QuestSet = this;
         }
 
         internal void AddQuestLink(QuestViewModel fromQuest, QuestViewModel toQuest)
@@ -74,6 +88,7 @@ namespace QuestEditor.ViewModels
 
         internal void RemoveQuest(QuestViewModel quest)
         {
+            quest.QuestSet = null;
             this.quests.Remove(quest);
         }
 
@@ -84,7 +99,7 @@ namespace QuestEditor.ViewModels
 
         private void AddQuest()
         {
-            QuestViewModel newQuest = new QuestViewModel();
+            QuestViewModel newQuest = new QuestViewModel { QuestSet = this };
             EditQuestMessage message = new EditQuestMessage { Quest = newQuest };
             this.MessengerInstance.Send(message);
             if (message.Accepted)

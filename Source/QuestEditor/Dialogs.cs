@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-
 using Microsoft.Win32;
 
 using GalaSoft.MvvmLight.Messaging;
@@ -14,16 +13,37 @@ namespace QuestEditor
     {
         internal static void Register(IMessenger messenger, object recipient)
         {
-            messenger.Register<SelectFileMessage>(recipient, SelectFile);
+            messenger.Register<SelectSourceFileMessage>(recipient, SelectSourceFile);
+            messenger.Register<SelectTargetFileMessage>(recipient, SelectTargetFile);
             messenger.Register<EditQuestMessage>(recipient, EditQuest);
             messenger.Register<SelectStringMessage>(recipient, SelectString);
         }
 
-        private static void SelectFile(SelectFileMessage message)
+        private static void SelectSourceFile(SelectSourceFileMessage message)
         {
             Window sender = message.Target as Window;
 
             OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = message.FileExtension;
+            dlg.Filter = message.FileExtensionFilter;
+
+            if (dlg.ShowDialog(sender) != true)
+            {
+                return;
+            }
+
+            message.SelectedFilePath = dlg.FileName;
+        }
+
+        private static void SelectTargetFile(SelectTargetFileMessage message)
+        {
+            Window sender = message.Target as Window;
+
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.DefaultExt = message.FileExtension;
+            dlg.Filter = message.FileExtensionFilter;
+            dlg.OverwritePrompt = message.PromptForOverwrite;
+
             if (dlg.ShowDialog(sender) != true)
             {
                 return;

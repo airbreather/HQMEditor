@@ -2,11 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:QuestEditor.ViewModels"
+        xmlns:me="clr-namespace:QuestEditor.MarkupExtensions"
         Title="Quest Editor"
         Name="ThisWindow"
         Width="640"
         Height="480"
+        Cursor="{Binding MouseMode, Converter={me:MouseModeToCursor}}"
         DataContext="{Binding ViewModel, RelativeSource={RelativeSource Self}}">
+    <!-- TODO: the Cursor binding should be more targeted... pen over buttons looks terrible. -->
     <Window.Resources>
         <CollectionViewSource x:Key="QuestsBridge" Source="{Binding SelectedQuestSet.Quests}" />
         <CollectionViewSource x:Key="QuestLinksBridge" Source="{Binding SelectedQuestSet.QuestLinks}" />
@@ -32,16 +35,18 @@
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Button Command="{Binding LoadQuestLineCommand}" Content="Load Quest Line" />
+            <Button Margin="5,0,0,0" Command="{Binding SaveQuestLineCommand}" Content="Save Quest Line" />
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Button Command="{Binding AddQuestSetCommand}" Content="Add Quest Set" />
             <Button Margin="5,0,0,0" Command="{Binding SelectedQuestSet.AddQuestCommand}" Content="Add Quest" />
         </StackPanel>
+
         <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <Button Click="OnAddQuestLinkButtonClick" Content="Add Quest Link" />
-                <Button Margin="5,0,0,0" Click="OnRemoveQuestLinkButtonClick" Content="Remove Quest Link" />
-                <Button Margin="5,0,0,0" Click="OnRestoreMouseButtonClick" Content="Restore Mouse to Drag Mode" />
+            <RadioButton GroupName="MouseMode" Content="Edit Quests" IsChecked="{Binding MouseMode, Converter={me:EqualsMouseMode EditQuests}}" />
+            <RadioButton Margin="5,0,0,0" GroupName="MouseMode" Content="Add Quest Link" IsChecked="{Binding MouseMode, Converter={me:EqualsMouseMode CreateLink}}" />
+            <RadioButton Margin="5,0,0,0" GroupName="MouseMode" Content="Delete Quest Link" IsChecked="{Binding MouseMode, Converter={me:EqualsMouseMode DeleteLink}}" />
         </StackPanel>
 
         <ListBox Grid.Row="1"
@@ -92,7 +97,7 @@
                             </Line>
                         </DataTemplate>
                     </ItemsControl.Resources>
-                    </ItemsControl>
+                </ItemsControl>
             </Border>
         </Viewbox>
     </Grid>

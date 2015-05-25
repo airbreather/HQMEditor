@@ -1,8 +1,9 @@
-﻿using GalaSoft.MvvmLight;
+﻿using System.Windows;
+
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 
 using QuestEditor.Messages;
-using System.Windows;
 
 namespace QuestEditor.ViewModels
 {
@@ -21,6 +22,13 @@ namespace QuestEditor.ViewModels
             this.YPos = other.yPos;
             this.Name = other.name;
             this.Description = other.description;
+            this.Icon = other.icon;
+            this.IsBig = other.isBig;
+            this.QuestSet = other.questSet;
+            this.repeatOption.RepeatType = other.repeatOption.RepeatType;
+            this.repeatOption.RepeatIntervalHours = other.repeatOption.RepeatIntervalHours;
+            this.triggerOption.TriggerType = other.triggerOption.TriggerType;
+            this.triggerOption.TaskCount = other.triggerOption.TaskCount;
         }
 
         private int id;
@@ -58,6 +66,39 @@ namespace QuestEditor.ViewModels
         {
             get { return this.description; }
             set { this.Set(ref this.description, value); }
+        }
+
+        private ItemStackViewModel icon;
+        public ItemStackViewModel Icon
+        {
+            get { return this.icon; }
+            set { this.Set(ref this.icon, value); }
+        }
+
+        private bool isBig;
+        public bool IsBig
+        {
+            get { return this.isBig; }
+            set { this.Set(ref this.isBig, value); }
+        }
+
+        private readonly QuestRepeatOptionViewModel repeatOption = new QuestRepeatOptionViewModel();
+        public QuestRepeatOptionViewModel RepeatOption
+        {
+            get { return this.repeatOption; }
+        }
+
+        private readonly QuestTriggerOptionViewModel triggerOption = new QuestTriggerOptionViewModel();
+        public QuestTriggerOptionViewModel TriggerOption
+        {
+            get { return this.triggerOption; }
+        }
+
+        private QuestSetViewModel questSet;
+        public QuestSetViewModel QuestSet
+        {
+            get { return this.questSet; }
+            set { this.Set(ref this.questSet, value); }
         }
 
         private readonly RelayCommand editCommand;

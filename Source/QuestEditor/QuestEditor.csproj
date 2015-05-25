@@ -75,9 +75,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\Conversions.cs" />
     <Compile Include="Dialogs.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="MarkupExtensions\ValueConverterExtensions.cs" />
+    <Compile Include="ValueConverters\EqualityValueConverter.cs" />
+    <Compile Include="ValueConverters\MouseModeToCursorValueConverter.cs" />
+    <Compile Include="ValueConverters\StronglyTypedValueConverterBase.cs" />
     <Compile Include="ViewModels\EditQuestViewModel.cs" />
+    <Compile Include="ViewModels\ItemStackViewModel.cs" />
     <Compile Include="ViewModels\QuestLinkViewModel.cs" />
+    <Compile Include="ViewModels\QuestRepeatOptionViewModel.cs" />
+    <Compile Include="ViewModels\QuestTriggerOptionViewModel.cs" />
+    <Compile Include="ViewModels\ReputationMarkerViewModel.cs" />
+    <Compile Include="ViewModels\ReputationViewModel.cs" />
     <Compile Include="ViewModels\SelectStringViewModel.cs" />
     <Compile Include="Views\SelectStringWindow.xaml.cs">
       <DependentUpon>SelectStringWindow.xaml</DependentUpon>
