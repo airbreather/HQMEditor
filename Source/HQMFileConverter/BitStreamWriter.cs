@@ -20,17 +20,7 @@ namespace HQMFileConverter
         {
             for (int i = 0; i < bitCount; i++)
             {
-                if (0 != (value & (1 << i)))
-                {
-                    curr |= (byte)(1 << this.idx);
-                }
-
-                if (++this.idx == 8)
-                {
-                    this.stream.Write(this.curr);
-                    this.curr = 0;
-                    this.idx = 0;
-                }
+                this.WriteBoolean(0 != (value & (1 << i)));
             }
         }
 
@@ -45,7 +35,17 @@ namespace HQMFileConverter
 
         public void WriteBoolean(bool value)
         {
-            this.WriteInt32(value ? 1 : 0, 1);
+            if (value)
+            {
+                this.curr |= (byte)(1 << this.idx);
+            }
+
+            if (++this.idx == 8)
+            {
+                this.stream.Write(this.curr);
+                this.curr = 0;
+                this.idx = 0;
+            }
         }
 
         public void WriteNBT(NbtWrapper value)
@@ -58,7 +58,7 @@ namespace HQMFileConverter
 
             this.WriteBoolean(true);
 
-            // Keep the original byte array.
+            // Keep the original byte array if it's unchanged.
             byte[] data = value.Changed
                 ? new NbtFile(value.RootTag).SaveToBuffer(NbtCompression.GZip)
                 : value.OriginalData;
