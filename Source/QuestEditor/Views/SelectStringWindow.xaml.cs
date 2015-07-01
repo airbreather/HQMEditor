@@ -20,7 +20,6 @@ namespace QuestEditor.Views
 
         public SelectStringViewModel ViewModel { get; }
 
-        private void OnOKButtonClick(object sender, EventArgs e) =>
-            this.DialogResult = true;
+        private void OnOKButtonClick(object sender, EventArgs e) => this.DialogResult = true;
     }
 }

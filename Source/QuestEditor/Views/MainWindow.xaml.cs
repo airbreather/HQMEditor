@@ -41,11 +41,11 @@ namespace QuestEditor.Views
             Canvas capturedCanvas = FindParent<Canvas>(ellipse);
             QuestViewModel quest = (QuestViewModel)ellipse.DataContext;
 
-            var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(ellipse, "MouseMove");
-            var mouseLeftButtonUps = Observable.FromEventPattern<MouseEventArgs>(ellipse, "MouseLeftButtonUp");
+            var mouseMoves = Observable.FromEventPattern<MouseEventArgs>(ellipse, nameof(ellipse.MouseMove));
+            var mouseLeftButtonUps = Observable.FromEventPattern<MouseEventArgs>(ellipse, nameof(ellipse.MouseLeftButtonUp));
 
             bool lostMouseCapture = false;
-            var lostMouseCaptures = Observable.FromEventPattern<MouseEventArgs>(ellipse, "LostMouseCapture")
+            var lostMouseCaptures = Observable.FromEventPattern<MouseEventArgs>(ellipse, nameof(ellipse.LostMouseCapture))
                                               .Do(_ => lostMouseCapture = true);
 
             var mouseButtonUpOrLostMouseCapture = Observable.Merge(mouseLeftButtonUps, lostMouseCaptures);

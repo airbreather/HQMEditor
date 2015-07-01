@@ -217,15 +217,15 @@ namespace HQMFileConverter
 
                 if (newQuest.Name != oldQuest.Name)
                 {
-                    Console.WriteLine("#{0} Name (OLD): {1}", id, oldQuest.Name);
-                    Console.WriteLine("#{0} Name (NEW): {1}", id, newQuest.Name);
+                    Console.WriteLine($"#{id} Name (OLD): {oldQuest.Name}");
+                    Console.WriteLine($"#{id} Name (NEW): {newQuest.Name}");
 
                     string answer = String.Empty;
                     bool newVersion = false;
                     while (!(newVersion = String.Equals(answer, "n", StringComparison.CurrentCultureIgnoreCase)) &&
                            !String.Equals(answer, "o", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        Console.Write("#{0}, Use the [n]ew or the [o]ld? ", id);
+                        Console.Write($"#{id}, Use the [n]ew or the [o]ld? ");
                         answer = Console.ReadLine();
                     }
 
@@ -236,20 +236,20 @@ namespace HQMFileConverter
                 }
                 else
                 {
-                    Console.WriteLine("#{0} Name: {1}", id, oldQuest.Name);
+                    Console.WriteLine($"#{id} Name: {oldQuest.Name}", id, oldQuest.Name);
                 }
 
                 if (newQuest.Description != oldQuest.Description)
                 {
-                    Console.WriteLine("#{0} Description (OLD): {1}", id, oldQuest.Description);
-                    Console.WriteLine("#{0} Description (NEW): {1}", id, newQuest.Description);
+                    Console.WriteLine($"#{id} Description (OLD): {oldQuest.Description}");
+                    Console.WriteLine($"#{id} Description (NEW): {newQuest.Description}");
 
                     string answer = String.Empty;
                     bool newVersion = false;
                     while (!(newVersion = String.Equals(answer, "n", StringComparison.CurrentCultureIgnoreCase)) &&
                            !String.Equals(answer, "o", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        Console.Write("#{0}, Use the [n]ew or the [o]ld? ", id);
+                        Console.Write($"#{id}, Use the [n]ew or the [o]ld? ");
                         answer = Console.ReadLine();
                     }
 
