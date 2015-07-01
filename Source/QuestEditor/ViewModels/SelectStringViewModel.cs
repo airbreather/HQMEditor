@@ -8,16 +8,13 @@ namespace QuestEditor.ViewModels
     {
         public SelectStringViewModel(string title, int maxLength, string initialValue)
         {
-            this.title = title;
-            this.maxLength = maxLength;
+            this.Title = title;
+            this.MaxLength = maxLength;
             this.value = initialValue ?? String.Empty;
         }
 
-        private readonly string title;
-        public string Title { get { return this.title; } }
-
-        private readonly int maxLength;
-        public int MaxLength { get { return this.maxLength; } }
+        public string Title { get; }
+        public int MaxLength { get; }
 
         private string value;
         public string Value

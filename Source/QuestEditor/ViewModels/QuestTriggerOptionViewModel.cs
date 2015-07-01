@@ -12,19 +12,16 @@ namespace QuestEditor.ViewModels
         public TriggerType TriggerType
         {
             get { return this.triggerType; }
-            set { this.Set(ref this.triggerType, value.ValidateEnum("value", TriggerType.Normal, TriggerType.ReverseTrigger, TriggerType.TaskCount, TriggerType.Trigger)); this.RaisePropertyChanged(() => this.TaskCountIsRelevant); }
+            set { this.Set(ref this.triggerType, value.ValidateEnum(nameof(value), TriggerType.Normal, TriggerType.ReverseTrigger, TriggerType.TaskCount, TriggerType.Trigger)); this.RaisePropertyChanged(nameof(this.TaskCountIsRelevant)); }
         }
 
         private int taskCount;
         public int TaskCount
         {
             get { return this.taskCount; }
-            set { this.Set(ref this.taskCount, value.ValidateMinAndMax("value", 0, Int32.MaxValue)); }
+            set { this.Set(ref this.taskCount, value.ValidateMinAndMax(nameof(value), 0, Int32.MaxValue)); }
         }
 
-        private bool TaskCountIsRelevant
-        {
-            get { return this.TriggerType == TriggerType.TaskCount; }
-        }
+        private bool TaskCountIsRelevant => this.TriggerType == TriggerType.TaskCount;
     }
 }

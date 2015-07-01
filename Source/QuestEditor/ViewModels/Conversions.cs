@@ -22,7 +22,7 @@ namespace QuestEditor.ViewModels
                 Size = itemStack.Size
             };
 
-            if (itemStack.NBT != null)
+            if (itemStack?.NBT?.OriginalData != null)
             {
                 result.NBT = Convert.ToBase64String(itemStack.NBT.OriginalData);
             }

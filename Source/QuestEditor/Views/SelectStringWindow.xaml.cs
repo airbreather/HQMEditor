@@ -7,8 +7,6 @@ namespace QuestEditor.Views
 {
     public partial class SelectStringWindow : Window
     {
-        private readonly SelectStringViewModel viewModel;
-
         public SelectStringWindow()
             : this(new SelectStringViewModel("Example Title", 100, "Example Initial Value"))
         {
@@ -16,15 +14,13 @@ namespace QuestEditor.Views
 
         public SelectStringWindow(SelectStringViewModel viewModel)
         {
-            this.viewModel = viewModel;
+            this.ViewModel = viewModel.ValidateNotNull(nameof(viewModel));
             this.InitializeComponent();
         }
 
-        public SelectStringViewModel ViewModel { get { return this.viewModel; } }
+        public SelectStringViewModel ViewModel { get; }
 
-        private void OnOKButtonClick(object sender, EventArgs e)
-        {
+        private void OnOKButtonClick(object sender, EventArgs e) =>
             this.DialogResult = true;
-        }
     }
 }

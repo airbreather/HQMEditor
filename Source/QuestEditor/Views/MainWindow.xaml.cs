@@ -14,21 +14,19 @@ namespace QuestEditor.Views
 {
     public sealed partial class MainWindow
     {
-        private readonly MainViewModel viewModel;
-
         public MainWindow()
         {
-            this.viewModel = new MainViewModel();
+            this.ViewModel = new MainViewModel();
             Dialogs.Register(Messenger.Default, this);
 
             this.InitializeComponent();
         }
 
-        public MainViewModel ViewModel { get { return this.viewModel; } }
+        public MainViewModel ViewModel { get; }
 
         private async void OnQuestMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
-            if (this.viewModel.MouseMode == MouseMode.DeleteLink)
+            if (this.ViewModel.MouseMode == MouseMode.DeleteLink)
             {
                 return;
             }
@@ -56,7 +54,7 @@ namespace QuestEditor.Views
             Point lastPos = e.GetPosition(capturedCanvas);
             using (mouseButtonUpOrLostMouseCapture.Subscribe(ep => lastPos = ep.EventArgs.GetPosition(capturedCanvas)))
             {
-                switch (this.viewModel.MouseMode)
+                switch (this.ViewModel.MouseMode)
                 {
                     case MouseMode.EditQuests:
                         await mouseMoves.TakeUntil(mouseButtonUpOrLostMouseCapture)
@@ -88,7 +86,7 @@ namespace QuestEditor.Views
 
             ellipse.ReleaseMouseCapture();
 
-            switch (this.viewModel.MouseMode)
+            switch (this.ViewModel.MouseMode)
             {
                 case MouseMode.EditQuests:
                     draggedOut |= lastHitTest != sender;
@@ -109,25 +107,25 @@ namespace QuestEditor.Views
                     Ellipse other = lastHitTest as Ellipse;
                     if (other != null && other != sender)
                     {
-                        this.viewModel.SelectedQuestSet.AddQuestLink(quest, (QuestViewModel)other.DataContext);
+                        this.ViewModel.SelectedQuestSet.AddQuestLink(quest, (QuestViewModel)other.DataContext);
                     }
 
-                    this.viewModel.MouseMode = MouseMode.EditQuests;
+                    this.ViewModel.MouseMode = MouseMode.EditQuests;
                     break;
             }
         }
 
         private void OnQuestLinkMouseLeftButtonUp(object sender, MouseEventArgs e)
         {
-            if (this.viewModel.MouseMode != MouseMode.DeleteLink)
+            if (this.ViewModel.MouseMode != MouseMode.DeleteLink)
             {
                 return;
             }
 
             Line line = (Line)sender;
             QuestLinkViewModel questLink = (QuestLinkViewModel)line.DataContext;
-            this.viewModel.SelectedQuestSet.RemoveQuestLink(questLink);
-            this.viewModel.MouseMode = MouseMode.EditQuests;
+            this.ViewModel.SelectedQuestSet.RemoveQuestLink(questLink);
+            this.ViewModel.MouseMode = MouseMode.EditQuests;
         }
 
         private static T FindParent<T>(DependencyObject child) where T : DependencyObject

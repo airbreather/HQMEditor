@@ -12,7 +12,8 @@ namespace QuestEditor.ViewModels
         public QuestViewModel()
         {
             this.id = -1;
-            this.editCommand = new RelayCommand(this.Edit);
+            this.EditCommand = new RelayCommand(this.Edit);
+            this.EditItemCommand = new RelayCommand(this.EditItem);
         }
 
         public void CopyFrom(QuestViewModel other)
@@ -25,10 +26,10 @@ namespace QuestEditor.ViewModels
             this.Icon = other.icon;
             this.IsBig = other.isBig;
             this.QuestSet = other.questSet;
-            this.repeatOption.RepeatType = other.repeatOption.RepeatType;
-            this.repeatOption.RepeatIntervalHours = other.repeatOption.RepeatIntervalHours;
-            this.triggerOption.TriggerType = other.triggerOption.TriggerType;
-            this.triggerOption.TaskCount = other.triggerOption.TaskCount;
+            this.RepeatOption.RepeatType = other.RepeatOption.RepeatType;
+            this.RepeatOption.RepeatIntervalHours = other.RepeatOption.RepeatIntervalHours;
+            this.TriggerOption.TriggerType = other.TriggerOption.TriggerType;
+            this.TriggerOption.TaskCount = other.TriggerOption.TaskCount;
         }
 
         private int id;
@@ -42,17 +43,17 @@ namespace QuestEditor.ViewModels
         public int XPos
         {
             get { return this.xPos; }
-            set { this.Set(ref this.xPos, value); this.RaisePropertyChanged("Pos"); }
+            set { this.Set(ref this.xPos, value); this.RaisePropertyChanged(nameof(this.Pos)); }
         }
 
         private int yPos;
         public int YPos
         {
             get { return this.yPos; }
-            set { this.Set(ref this.yPos, value); this.RaisePropertyChanged("Pos"); }
+            set { this.Set(ref this.yPos, value); this.RaisePropertyChanged(nameof(this.Pos)); }
         }
 
-        public Point Pos { get { return new Point(this.xPos, this.yPos); } }
+        public Point Pos => new Point(this.xPos, this.yPos);
 
         private string name;
         public string Name
@@ -82,29 +83,32 @@ namespace QuestEditor.ViewModels
             set { this.Set(ref this.isBig, value); }
         }
 
-        private readonly QuestRepeatOptionViewModel repeatOption = new QuestRepeatOptionViewModel();
-        public QuestRepeatOptionViewModel RepeatOption
-        {
-            get { return this.repeatOption; }
-        }
-
-        private readonly QuestTriggerOptionViewModel triggerOption = new QuestTriggerOptionViewModel();
-        public QuestTriggerOptionViewModel TriggerOption
-        {
-            get { return this.triggerOption; }
-        }
-
         private QuestSetViewModel questSet;
         public QuestSetViewModel QuestSet
         {
             get { return this.questSet; }
             set { this.Set(ref this.questSet, value); }
         }
+        
+        public QuestRepeatOptionViewModel RepeatOption { get; } = new QuestRepeatOptionViewModel();
+        public QuestTriggerOptionViewModel TriggerOption { get; } = new QuestTriggerOptionViewModel();
 
-        private readonly RelayCommand editCommand;
-        public RelayCommand EditCommand { get { return this.editCommand; } }
-
+        public RelayCommand EditCommand { get; }
         private void Edit()
+        {
+            QuestViewModel copiedQuest = new QuestViewModel();
+            copiedQuest.CopyFrom(this);
+
+            EditQuestMessage message = new EditQuestMessage { Quest = copiedQuest };
+            this.MessengerInstance.Send(message);
+            if (message.Accepted)
+            {
+                this.CopyFrom(copiedQuest);
+            }
+        }
+
+        public RelayCommand EditItemCommand { get; }
+        private void EditItem()
         {
             QuestViewModel copiedQuest = new QuestViewModel();
             copiedQuest.CopyFrom(this);

@@ -25,9 +25,9 @@ namespace QuestEditor.ViewModels
     {
         public MainViewModel()
         {
-            this.addQuestSetCommand = new RelayCommand(this.AddQuestSet);
-            this.loadQuestLineCommand = new RelayCommand(this.LoadQuestLine);
-            this.saveQuestLineCommand = new RelayCommand(this.SaveQuestLine);
+            this.AddQuestSetCommand = new RelayCommand(this.AddQuestSet);
+            this.LoadQuestLineCommand = new RelayCommand(this.LoadQuestLine);
+            this.SaveQuestLineCommand = new RelayCommand(this.SaveQuestLine);
 
             QuestViewModel[] quests =
             {
@@ -44,21 +44,15 @@ namespace QuestEditor.ViewModels
                 new QuestLinkViewModel(fromQuest: quests[2], toQuest: quests[3])
             };
 
-            this.questSets = new ObservableCollection<QuestSetViewModel>
-            {
-                new QuestSetViewModel(1, "Q1", new ArraySegment<QuestViewModel>(quests, 0, 2), new ArraySegment<QuestLinkViewModel>(questLinks, 0, 1)),
-                new QuestSetViewModel(2, "Q2", new ArraySegment<QuestViewModel>(quests, 2, 2), new ArraySegment<QuestLinkViewModel>(questLinks, 1, 1)),
-                new QuestSetViewModel(3, "Q3", new ArraySegment<QuestViewModel>(quests, 4, 1), Enumerable.Empty<QuestLinkViewModel>())
-            };
+            this.questSetsMutable.Add(new QuestSetViewModel(1, "Q1", new ArraySegment<QuestViewModel>(quests, 0, 2), new ArraySegment<QuestLinkViewModel>(questLinks, 0, 1)));
+            this.questSetsMutable.Add(new QuestSetViewModel(2, "Q2", new ArraySegment<QuestViewModel>(quests, 2, 2), new ArraySegment<QuestLinkViewModel>(questLinks, 1, 1)));
+            this.questSetsMutable.Add(new QuestSetViewModel(3, "Q3", new ArraySegment<QuestViewModel>(quests, 4, 1), Enumerable.Empty<QuestLinkViewModel>()));
 
-            this.questSetsReadOnly = new ReadOnlyObservableCollection<QuestSetViewModel>(this.questSets);
-            this.selectedQuestSet = this.questSets[0];
+            this.selectedQuestSet = this.questSetsMutable[0];
 
-            this.crossSetQuestLinks = new ObservableCollection<QuestLinkViewModel>();
-            this.crossSetQuestLinksReadOnly = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.crossSetQuestLinks);
-
-            this.reputations = new ObservableCollection<ReputationViewModel>();
-            this.reputationsReadOnly = new ReadOnlyObservableCollection<ReputationViewModel>(this.reputations);
+            this.QuestSets = new ReadOnlyObservableCollection<QuestSetViewModel>(this.questSetsMutable);
+            this.CrossSetQuestLinks = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.crossSetQuestLinksMutable);
+            this.Reputations = new ReadOnlyObservableCollection<ReputationViewModel>(this.reputationsMutable);
         }
 
         private QuestSetViewModel selectedQuestSet;
@@ -68,26 +62,17 @@ namespace QuestEditor.ViewModels
             set { this.Set(ref this.selectedQuestSet, value); }
         }
 
-        private readonly ObservableCollection<QuestSetViewModel> questSets;
-        private readonly ReadOnlyObservableCollection<QuestSetViewModel> questSetsReadOnly;
-        public ReadOnlyObservableCollection<QuestSetViewModel> QuestSets { get { return this.questSetsReadOnly; } }
+        private readonly ObservableCollection<QuestSetViewModel> questSetsMutable = new ObservableCollection<QuestSetViewModel>();
+        private readonly ObservableCollection<ReputationViewModel> reputationsMutable = new ObservableCollection<ReputationViewModel>();
+        private readonly ObservableCollection<QuestLinkViewModel> crossSetQuestLinksMutable = new ObservableCollection<QuestLinkViewModel>();
 
-        private readonly ObservableCollection<QuestLinkViewModel> crossSetQuestLinks;
-        private readonly ReadOnlyObservableCollection<QuestLinkViewModel> crossSetQuestLinksReadOnly;
-        public ReadOnlyObservableCollection<QuestLinkViewModel> CrossSetQuestLinks { get { return this.crossSetQuestLinksReadOnly; } }
+        public ReadOnlyObservableCollection<QuestSetViewModel> QuestSets { get; }
+        public ReadOnlyObservableCollection<QuestLinkViewModel> CrossSetQuestLinks { get; }
+        public ReadOnlyObservableCollection<ReputationViewModel> Reputations { get; }
 
-        private readonly ObservableCollection<ReputationViewModel> reputations;
-        private readonly ReadOnlyObservableCollection<ReputationViewModel> reputationsReadOnly;
-        public ReadOnlyObservableCollection<ReputationViewModel> Reputations { get { return this.reputationsReadOnly; } }
-
-        private readonly RelayCommand loadQuestLineCommand;
-        public RelayCommand LoadQuestLineCommand { get { return this.loadQuestLineCommand; } }
-
-        private readonly RelayCommand saveQuestLineCommand;
-        public RelayCommand SaveQuestLineCommand { get { return this.saveQuestLineCommand; } }
-
-        private readonly RelayCommand addQuestSetCommand;
-        public RelayCommand AddQuestSetCommand { get { return this.addQuestSetCommand; } }
+        public RelayCommand LoadQuestLineCommand { get; }
+        public RelayCommand SaveQuestLineCommand { get; }
+        public RelayCommand AddQuestSetCommand { get; }
 
         private MouseMode mouseMode;
         public MouseMode MouseMode
@@ -120,7 +105,7 @@ namespace QuestEditor.ViewModels
                 return;
             }
 
-            this.questSets.Add(new QuestSetViewModel(-1, message.StringValue, Enumerable.Empty<QuestViewModel>(), Enumerable.Empty<QuestLinkViewModel>()));
+            this.questSetsMutable.Add(new QuestSetViewModel(-1, message.StringValue, Enumerable.Empty<QuestViewModel>(), Enumerable.Empty<QuestLinkViewModel>()));
         }
 
         private void LoadQuestLine()
@@ -136,7 +121,7 @@ namespace QuestEditor.ViewModels
                 return;
             }
 
-            this.questSets.Clear();
+            this.questSetsMutable.Clear();
 
             QuestLine ql;
             using (var stream = File.OpenRead(message.SelectedFilePath))
@@ -198,22 +183,22 @@ namespace QuestEditor.ViewModels
                     }
                     else
                     {
-                        this.crossSetQuestLinks.Add(new QuestLinkViewModel(fromQuest: fromQuest, toQuest: q));
+                        this.crossSetQuestLinksMutable.Add(new QuestLinkViewModel(fromQuest: fromQuest, toQuest: q));
                     }
                 }
             }
 
             foreach (var set in questSetMapping.OrderBy(q => q.Key).Select(q => q.Value))
             {
-                this.questSets.Add(set);
+                this.questSetsMutable.Add(set);
             }
 
             foreach (var reputation in ql.Reputations)
             {
-                this.reputations.Add(Conversions.ReputationToReputationViewModel(reputation));
+                this.reputationsMutable.Add(Conversions.ReputationToReputationViewModel(reputation));
             }
 
-            this.SelectedQuestSet = this.questSets[0];
+            this.SelectedQuestSet = this.questSetsMutable[0];
         }
 
         private void SaveQuestLine()
@@ -238,12 +223,12 @@ namespace QuestEditor.ViewModels
             questLine.PassCode = this.passCode;
             questLine.Description = this.description;
 
-            int maxQuestSetId = this.questSets.Max(x => x.Id);
+            int maxQuestSetId = this.questSetsMutable.Max(x => x.Id);
 
-            questLine.QuestSets = new QuestSet[this.questSets.Count];
+            questLine.QuestSets = new QuestSet[this.questSetsMutable.Count];
             for (int questSetIndex = 0; questSetIndex < questLine.QuestSets.Length; questSetIndex++)
             {
-                var questSet = this.questSets[questSetIndex];
+                var questSet = this.questSetsMutable[questSetIndex];
 
                 // TODO: preserve old IDs, probably with a Dictionary<int, int>?
                 // Remember newly created ones will have negative IDs.
@@ -256,7 +241,7 @@ namespace QuestEditor.ViewModels
                 outputQuestSet.Description = String.Empty;
             }
 
-            var quests = this.questSets.SelectMany(questSet => questSet.Quests).ToArray();
+            var quests = this.questSetsMutable.SelectMany(questSet => questSet.Quests).ToArray();
 
             // TODO: preserve old IDs, probably with a Dictionary<int, int>?
             // Remember newly created ones will have negative IDs.
@@ -291,17 +276,17 @@ namespace QuestEditor.ViewModels
                 outputQuest.ReputationRewards = new ReputationReward[0];
             }
 
-            foreach (var questLink in this.questSets.SelectMany(questSet => questSet.QuestLinks).Concat(this.crossSetQuestLinks))
+            foreach (var questLink in this.questSetsMutable.SelectMany(questSet => questSet.QuestLinks).Concat(this.crossSetQuestLinksMutable))
             {
                 var q = questLine.Quests[questLink.ToQuest.Id];
                 q.RequiredQuestIds = (q.RequiredQuestIds ?? Enumerable.Empty<int>()).Concat(new[] { questLink.FromQuest.Id }).ToArray();
             }
 
-            questLine.Reputations = new Reputation[this.reputations.Count];
+            questLine.Reputations = new Reputation[this.reputationsMutable.Count];
 
             for (int reputationIndex = 0; reputationIndex < questLine.Reputations.Length; reputationIndex++)
             {
-                questLine.Reputations[reputationIndex] = Conversions.ReputationViewModelToReputation(this.reputations[reputationIndex]);
+                questLine.Reputations[reputationIndex] = Conversions.ReputationViewModelToReputation(this.reputationsMutable[reputationIndex]);
             }
 
             // TODO: bags.

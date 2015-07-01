@@ -7,8 +7,6 @@ namespace QuestEditor.Views
 {
     public partial class EditQuestWindow : Window
     {
-        private readonly EditQuestViewModel viewModel;
-
         public EditQuestWindow()
             : this(new QuestViewModel())
         {
@@ -16,15 +14,13 @@ namespace QuestEditor.Views
 
         public EditQuestWindow(QuestViewModel quest)
         {
-            this.viewModel = new EditQuestViewModel(quest.ValidateNotNull("quest"));
+            this.ViewModel = new EditQuestViewModel(quest.ValidateNotNull(nameof(quest)));
             this.InitializeComponent();
         }
 
-        public EditQuestViewModel ViewModel { get { return this.viewModel; } }
+        public EditQuestViewModel ViewModel { get; }
 
-        private void OnOKButtonClick(object sender, EventArgs e)
-        {
+        private void OnOKButtonClick(object sender, EventArgs e) =>
             this.DialogResult = true;
-        }
     }
 }

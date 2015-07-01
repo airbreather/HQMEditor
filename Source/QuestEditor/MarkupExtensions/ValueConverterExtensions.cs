@@ -16,19 +16,13 @@ namespace QuestEditor.MarkupExtensions
         [ConstructorArgument("other")]
         public MouseMode Other { get; set; }
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
-            return new EqualityValueConverter(this.Other);
-        }
+        public override object ProvideValue(IServiceProvider serviceProvider) => new EqualityValueConverter(this.Other);
     }
 
     public sealed class MouseModeToCursorExtension : MarkupExtension
     {
         private static readonly MouseModeToCursorValueConverter ConverterInstance = new MouseModeToCursorValueConverter();
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
-            return ConverterInstance;
-        }
+        public override object ProvideValue(IServiceProvider serviceProvider) => ConverterInstance;
     }
 }

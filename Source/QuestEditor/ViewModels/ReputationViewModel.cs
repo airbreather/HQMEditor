@@ -8,8 +8,7 @@ namespace QuestEditor.ViewModels
     {
         public ReputationViewModel()
         {
-            this.markers = new ObservableCollection<ReputationMarkerViewModel>();
-            this.markersReadOnly = new ReadOnlyObservableCollection<ReputationMarkerViewModel>(this.markers);
+            this.Markers = new ReadOnlyObservableCollection<ReputationMarkerViewModel>(this.markersMutable);
         }
 
         private int id;
@@ -26,18 +25,10 @@ namespace QuestEditor.ViewModels
             set { this.Set(ref this.name, value); }
         }
 
-        private readonly ObservableCollection<ReputationMarkerViewModel> markers;
-        private readonly ReadOnlyObservableCollection<ReputationMarkerViewModel> markersReadOnly;
-        public ReadOnlyObservableCollection<ReputationMarkerViewModel> Markers { get { return this.markersReadOnly; } }
+        private readonly ObservableCollection<ReputationMarkerViewModel> markersMutable = new ObservableCollection<ReputationMarkerViewModel>();
+        public ReadOnlyObservableCollection<ReputationMarkerViewModel> Markers { get; }
 
-        public void AddMarker(ReputationMarkerViewModel marker)
-        {
-            this.markers.Add(marker);
-        }
-
-        public void RemoveMarker(ReputationMarkerViewModel marker)
-        {
-            this.markers.Remove(marker);
-        }
+        public void AddMarker(ReputationMarkerViewModel marker) => this.markersMutable.Add(marker);
+        public void RemoveMarker(ReputationMarkerViewModel marker) => this.markersMutable.Remove(marker);
     }
 }

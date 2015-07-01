@@ -1,4 +1,5 @@
 ﻿using System;
+
 using GalaSoft.MvvmLight;
 
 namespace QuestEditor.ViewModels
@@ -7,37 +8,17 @@ namespace QuestEditor.ViewModels
     {
         public QuestLinkViewModel(QuestViewModel fromQuest, QuestViewModel toQuest)
         {
-            this.fromQuest = fromQuest.ValidateNotNull("fromQuest");
-            this.toQuest = toQuest.ValidateNotNull("toQuest");
+            this.FromQuest = fromQuest.ValidateNotNull(nameof(fromQuest));
+            this.ToQuest = toQuest.ValidateNotNull(nameof(toQuest));
         }
 
-        private readonly QuestViewModel fromQuest;
-        public QuestViewModel FromQuest { get { return this.fromQuest; } }
+        public QuestViewModel FromQuest { get; }
+        public QuestViewModel ToQuest { get; }
 
-        private readonly QuestViewModel toQuest;
-        public QuestViewModel ToQuest { get { return this.toQuest; } }
+        public bool Conflicts(QuestViewModel quest1, QuestViewModel quest2) => (this.FromQuest == quest1 && this.ToQuest == quest2) || (this.FromQuest == quest2 && this.ToQuest == quest1);
 
-        public bool Conflicts(QuestViewModel quest1, QuestViewModel quest2)
-        {
-            return (this.fromQuest == quest1 && this.toQuest == quest2) ||
-                   (this.fromQuest == quest2 && this.toQuest == quest1);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as QuestLinkViewModel);
-        }
-
-        public bool Equals(QuestLinkViewModel other)
-        {
-            return other != null &&
-                   Equals(this.fromQuest, other.fromQuest) &&
-                   Equals(this.toQuest, other.toQuest);
-        }
-
-        public override int GetHashCode()
-        {
-            return this.fromQuest.GetHashCode() ^ this.toQuest.GetHashCode();
-        }
+        public override bool Equals(object obj) => this.Equals(obj as QuestLinkViewModel);
+        public bool Equals(QuestLinkViewModel other) => other != null && Equals(this.FromQuest, other.FromQuest) && Equals(this.ToQuest, other.ToQuest);
+        public override int GetHashCode() => this.FromQuest.GetHashCode() ^ this.ToQuest.GetHashCode();
     }
 }

@@ -19,10 +19,7 @@ namespace QuestEditor.ValueConverters
 
         public object Other { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Equals(this.Other, value);
-        }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => Equals(this.Other, value);
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

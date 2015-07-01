@@ -20,19 +20,22 @@ namespace QuestEditor.ViewModels
 
         public QuestSetViewModel(int id, string name, IEnumerable<QuestViewModel> quests, IEnumerable<QuestLinkViewModel> questLinks)
         {
-            this.addQuestCommand = new RelayCommand(this.AddQuest);
+            this.AddQuestCommand = new RelayCommand(this.AddQuest);
 
             this.id = id;
-            this.name = name.ValidateNotNull("name");
-            this.quests = new ObservableCollection<QuestViewModel>(quests.ValidateNotNull("quests"));
-            this.questsReadOnly = new ReadOnlyObservableCollection<QuestViewModel>(this.quests);
+            this.name = name.ValidateNotNull(nameof(name));
 
-            this.questLinks = new ObservableCollection<QuestLinkViewModel>(questLinks.ValidateNotNull("questLinks"));
-            this.questLinksReadOnly = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.questLinks);
+            this.Quests = new ReadOnlyObservableCollection<QuestViewModel>(this.questsMutable);
+            this.QuestLinks = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.questLinksMutable);
 
-            foreach (var quest in this.quests)
+            foreach (var quest in quests.ValidateNotNull(nameof(quests)))
             {
-                quest.QuestSet = this;
+                this.AddQuest(quest);
+            }
+
+            foreach (var questLink in questLinks.ValidateNotNull(nameof(questLinks)))
+            {
+                this.AddQuestLink(questLink.FromQuest, questLink.ToQuest);
             }
         }
 
@@ -56,47 +59,43 @@ namespace QuestEditor.ViewModels
             get { return this.description; }
             set { this.Set(ref this.description, value); }
         }
-        
-        private readonly ObservableCollection<QuestViewModel> quests;
-        private readonly ReadOnlyObservableCollection<QuestViewModel> questsReadOnly;
-        public ReadOnlyObservableCollection<QuestViewModel> Quests { get { return this.questsReadOnly; } }
 
-        private readonly ObservableCollection<QuestLinkViewModel> questLinks;
-        private readonly ReadOnlyObservableCollection<QuestLinkViewModel> questLinksReadOnly;
-        public ReadOnlyObservableCollection<QuestLinkViewModel> QuestLinks { get { return this.questLinksReadOnly; } }
+        private readonly ObservableCollection<QuestViewModel> questsMutable = new ObservableCollection<QuestViewModel>();
+        private readonly ObservableCollection<QuestLinkViewModel> questLinksMutable = new ObservableCollection<QuestLinkViewModel>();
+
+        public ReadOnlyObservableCollection<QuestViewModel> Quests { get; }
+        public ReadOnlyObservableCollection<QuestLinkViewModel> QuestLinks { get; }
 
         public void AddQuest(QuestViewModel quest)
         {
-            this.quests.Add(quest);
+            this.questsMutable.Add(quest);
             quest.QuestSet = this;
         }
 
         public void AddQuestLink(QuestViewModel fromQuest, QuestViewModel toQuest)
         {
             // TODO: index this collection so we don't need to linear search
-            if (this.questLinks.Any(questLink => questLink.Conflicts(fromQuest, toQuest)))
+            if (this.questLinksMutable.Any(questLink => questLink.Conflicts(fromQuest, toQuest)))
             {
                 MessageBox.Show("TODO: nicer error message here, but for now... there's a conflict yo!");
                 return;
             }
 
-            this.questLinks.Add(new QuestLinkViewModel(fromQuest: fromQuest, toQuest: toQuest));
+            this.questLinksMutable.Add(new QuestLinkViewModel(fromQuest: fromQuest, toQuest: toQuest));
         }
 
         public void RemoveQuest(QuestViewModel quest)
         {
             quest.QuestSet = null;
-            this.quests.Remove(quest);
+            this.questsMutable.Remove(quest);
         }
 
         public void RemoveQuestLink(QuestLinkViewModel questLink)
         {
-            this.questLinks.Remove(questLink);
+            this.questLinksMutable.Remove(questLink);
         }
 
-        private readonly RelayCommand addQuestCommand;
-        public RelayCommand AddQuestCommand { get { return this.addQuestCommand; } }
-
+        public RelayCommand AddQuestCommand { get; }
         private void AddQuest()
         {
             QuestViewModel newQuest = new QuestViewModel { QuestSet = this };

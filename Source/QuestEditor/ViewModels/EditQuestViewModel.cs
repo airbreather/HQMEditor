@@ -6,15 +6,14 @@ namespace QuestEditor.ViewModels
     {
         public EditQuestViewModel(QuestViewModel quest)
         {
-            this.quest = quest.ValidateNotNull("quest");
+            this.Quest = quest.ValidateNotNull(nameof(quest));
 
 #if FALSE
             this.registerValidationErrorCommand = new RelayCommand<ValidationErrorEventArgs>(this.RegisterValidationError);
 #endif
         }
 
-        private readonly QuestViewModel quest;
-        public QuestViewModel Quest { get { return this.quest; } }
+        public QuestViewModel Quest { get; }
 
 #if FALSE
         private readonly RelayCommand<ValidationErrorEventArgs> registerValidationErrorCommand;
