@@ -6,7 +6,7 @@ namespace QuestEditor.ViewModels
     {
         public EditQuestViewModel(QuestViewModel quest)
         {
-            this.quest = quest;
+            this.quest = quest.ValidateNotNull("quest");
 
 #if FALSE
             this.registerValidationErrorCommand = new RelayCommand<ValidationErrorEventArgs>(this.RegisterValidationError);

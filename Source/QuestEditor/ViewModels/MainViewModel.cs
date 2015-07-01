@@ -40,8 +40,8 @@ namespace QuestEditor.ViewModels
 
             QuestLinkViewModel[] questLinks =
             {
-                new QuestLinkViewModel { FromQuest = quests[0], ToQuest = quests[1] },
-                new QuestLinkViewModel { FromQuest = quests[2], ToQuest = quests[3] }
+                new QuestLinkViewModel(fromQuest: quests[0], toQuest: quests[1]),
+                new QuestLinkViewModel(fromQuest: quests[2], toQuest: quests[3])
             };
 
             this.questSets = new ObservableCollection<QuestSetViewModel>
@@ -198,7 +198,7 @@ namespace QuestEditor.ViewModels
                     }
                     else
                     {
-                        this.crossSetQuestLinks.Add(new QuestLinkViewModel { FromQuest = fromQuest, ToQuest = q });
+                        this.crossSetQuestLinks.Add(new QuestLinkViewModel(fromQuest: fromQuest, toQuest: q));
                     }
                 }
             }
@@ -246,6 +246,7 @@ namespace QuestEditor.ViewModels
                 var questSet = this.questSets[questSetIndex];
 
                 // TODO: preserve old IDs, probably with a Dictionary<int, int>?
+                // Remember newly created ones will have negative IDs.
                 questSet.Id = questSetIndex;
 
                 QuestSet outputQuestSet = questLine.QuestSets[questSetIndex] = new QuestSet();
@@ -258,6 +259,7 @@ namespace QuestEditor.ViewModels
             var quests = this.questSets.SelectMany(questSet => questSet.Quests).ToArray();
 
             // TODO: preserve old IDs, probably with a Dictionary<int, int>?
+            // Remember newly created ones will have negative IDs.
             for (int questIndex = 0; questIndex < quests.Length; questIndex++)
             {
                 quests[questIndex].Id = questIndex;

@@ -23,11 +23,11 @@ namespace QuestEditor.ViewModels
             this.addQuestCommand = new RelayCommand(this.AddQuest);
 
             this.id = id;
-            this.name = name;
-            this.quests = new ObservableCollection<QuestViewModel>(quests);
+            this.name = name.ValidateNotNull("name");
+            this.quests = new ObservableCollection<QuestViewModel>(quests.ValidateNotNull("quests"));
             this.questsReadOnly = new ReadOnlyObservableCollection<QuestViewModel>(this.quests);
 
-            this.questLinks = new ObservableCollection<QuestLinkViewModel>(questLinks);
+            this.questLinks = new ObservableCollection<QuestLinkViewModel>(questLinks.ValidateNotNull("questLinks"));
             this.questLinksReadOnly = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.questLinks);
 
             foreach (var quest in this.quests)
@@ -56,7 +56,7 @@ namespace QuestEditor.ViewModels
             get { return this.description; }
             set { this.Set(ref this.description, value); }
         }
-
+        
         private readonly ObservableCollection<QuestViewModel> quests;
         private readonly ReadOnlyObservableCollection<QuestViewModel> questsReadOnly;
         public ReadOnlyObservableCollection<QuestViewModel> Quests { get { return this.questsReadOnly; } }
@@ -65,16 +65,13 @@ namespace QuestEditor.ViewModels
         private readonly ReadOnlyObservableCollection<QuestLinkViewModel> questLinksReadOnly;
         public ReadOnlyObservableCollection<QuestLinkViewModel> QuestLinks { get { return this.questLinksReadOnly; } }
 
-        private readonly RelayCommand addQuestCommand;
-        public RelayCommand AddQuestCommand { get { return this.addQuestCommand; } }
-
-        internal void AddQuest(QuestViewModel quest)
+        public void AddQuest(QuestViewModel quest)
         {
             this.quests.Add(quest);
             quest.QuestSet = this;
         }
 
-        internal void AddQuestLink(QuestViewModel fromQuest, QuestViewModel toQuest)
+        public void AddQuestLink(QuestViewModel fromQuest, QuestViewModel toQuest)
         {
             // TODO: index this collection so we don't need to linear search
             if (this.questLinks.Any(questLink => questLink.Conflicts(fromQuest, toQuest)))
@@ -83,19 +80,22 @@ namespace QuestEditor.ViewModels
                 return;
             }
 
-            this.questLinks.Add(new QuestLinkViewModel { FromQuest = fromQuest, ToQuest = toQuest });
+            this.questLinks.Add(new QuestLinkViewModel(fromQuest: fromQuest, toQuest: toQuest));
         }
 
-        internal void RemoveQuest(QuestViewModel quest)
+        public void RemoveQuest(QuestViewModel quest)
         {
             quest.QuestSet = null;
             this.quests.Remove(quest);
         }
 
-        internal void RemoveQuestLink(QuestLinkViewModel questLink)
+        public void RemoveQuestLink(QuestLinkViewModel questLink)
         {
             this.questLinks.Remove(questLink);
         }
+
+        private readonly RelayCommand addQuestCommand;
+        public RelayCommand AddQuestCommand { get { return this.addQuestCommand; } }
 
         private void AddQuest()
         {
@@ -104,7 +104,7 @@ namespace QuestEditor.ViewModels
             this.MessengerInstance.Send(message);
             if (message.Accepted)
             {
-                this.quests.Add(newQuest);
+                this.AddQuest(newQuest);
             }
         }
     }

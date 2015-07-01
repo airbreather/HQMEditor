@@ -16,7 +16,7 @@ namespace QuestEditor.Views
 
         public EditQuestWindow(QuestViewModel quest)
         {
-            this.viewModel = new EditQuestViewModel(quest);
+            this.viewModel = new EditQuestViewModel(quest.ValidateNotNull("quest"));
             this.InitializeComponent();
         }
 

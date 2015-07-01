@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-
+using System.Text.RegularExpressions;
 using fNbt;
 
 namespace HQMFileConverter
@@ -23,6 +24,10 @@ namespace HQMFileConverter
 
             RenameChris(hqmInput: @"C:\Temp\quests.hqm",
                         hqmOutput: @"C:\Temp\quests.hqm.fixed4");
+
+            ////ImportDescriptions(hqmInput: @"C:\Temp\q3.hqm",
+            ////                   descInput: @"C:\Temp\descriptions.txt",
+            ////                   hqmOutput: @"C:\Temp\q3-desc.hqm");
 
             RoundTrip(hqmInput: @"C:\Temp\quests.hqm",
                       hqmOutput: @"C:\Temp\quests.hqm.rt");
@@ -132,6 +137,129 @@ namespace HQMFileConverter
                      .Get<NbtString>("Name")
                      .Value = "Chris the Wielding";
 
+            using (var outputStream = File.OpenWrite(hqmOutput))
+            {
+                new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
+            }
+        }
+
+        private static void ImportDescriptions(string hqmInput, string descInput, string hqmOutput)
+        {
+            QuestLine questLine;
+            using (var inputStream = File.OpenRead(hqmInput))
+            {
+                questLine = new HQMQuestLineReader().ReadQuestLine(inputStream);
+            }
+
+            Dictionary<int, Quest> oldQ = questLine.Quests.Where(x => x != null).ToDictionary(x => x.Id);
+            Dictionary<int, Quest> newQ = new Dictionary<int, Quest>();
+
+            string[] descLines = File.ReadAllLines(descInput);
+            int i = 0;
+            while (i < descLines.Length)
+            {
+                Match beginMatch = Regex.Match(descLines[i++], @"BEGIN(\d+) \(Name\: (.*)\)$");
+                if (!beginMatch.Success)
+                {
+                    throw new Exception("WTF");
+                }
+
+                int id;
+                if (!Int32.TryParse(beginMatch.Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+                {
+                    throw new Exception("WTF2");
+                }
+
+                Quest quest;
+                if (!oldQ.TryGetValue(id, out quest))
+                {
+                    throw new Exception("WTF3");
+                }
+
+                string name = beginMatch.Groups[2].Value;
+                bool doIt = quest.Name != name;
+
+                Match descriptionMatch;
+                do
+                {
+                    descriptionMatch = Regex.Match(descLines[i++], @"Description\: (.*)$");
+                }
+                while (!descriptionMatch.Success);
+
+                string description = descriptionMatch.Groups[1].Value;
+                doIt |= quest.Description != description;
+
+                if (doIt)
+                {
+                    newQ[id] = new Quest { Id = id, Name = name, Description = description };
+                }
+
+                Match endMatch;
+                do
+                {
+                    endMatch = Regex.Match(descLines[i++], @"END(\d+) \(Name\: (.*)\)$");
+                }
+                while (!endMatch.Success);
+
+                if (endMatch.Groups[1].Value != beginMatch.Groups[1].Value ||
+                    endMatch.Groups[2].Value != beginMatch.Groups[2].Value)
+                {
+                    throw new Exception("WTF3");
+                }
+            }
+
+            HashSet<int> changed = new HashSet<int>();
+            foreach (var kvp in newQ.OrderBy(x => x.Key))
+            {
+                int id = kvp.Key;
+                Quest newQuest = kvp.Value;
+                Quest oldQuest = oldQ[id];
+
+                if (newQuest.Name != oldQuest.Name)
+                {
+                    Console.WriteLine("#{0} Name (OLD): {1}", id, oldQuest.Name);
+                    Console.WriteLine("#{0} Name (NEW): {1}", id, newQuest.Name);
+
+                    string answer = String.Empty;
+                    bool newVersion = false;
+                    while (!(newVersion = String.Equals(answer, "n", StringComparison.CurrentCultureIgnoreCase)) &&
+                           !String.Equals(answer, "o", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        Console.Write("#{0}, Use the [n]ew or the [o]ld? ", id);
+                        answer = Console.ReadLine();
+                    }
+
+                    if (newVersion)
+                    {
+                        oldQuest.Name = newQuest.Name;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("#{0} Name: {1}", id, oldQuest.Name);
+                }
+
+                if (newQuest.Description != oldQuest.Description)
+                {
+                    Console.WriteLine("#{0} Description (OLD): {1}", id, oldQuest.Description);
+                    Console.WriteLine("#{0} Description (NEW): {1}", id, newQuest.Description);
+
+                    string answer = String.Empty;
+                    bool newVersion = false;
+                    while (!(newVersion = String.Equals(answer, "n", StringComparison.CurrentCultureIgnoreCase)) &&
+                           !String.Equals(answer, "o", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        Console.Write("#{0}, Use the [n]ew or the [o]ld? ", id);
+                        answer = Console.ReadLine();
+                    }
+
+                    if (newVersion)
+                    {
+                        oldQuest.Description = newQuest.Description;
+                    }
+                }
+            }
+            
             using (var outputStream = File.OpenWrite(hqmOutput))
             {
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);

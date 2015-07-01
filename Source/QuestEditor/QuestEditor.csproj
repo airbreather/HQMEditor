@@ -93,6 +93,10 @@
     <Compile Include="Views\SelectStringWindow.xaml.cs">
       <DependentUpon>SelectStringWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Resources\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EditQuestWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
