@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
+using static System.Convert;
+
 namespace QuestEditor.ValueConverters
 {
     [ValueConversion(typeof(object), typeof(bool))]
@@ -25,7 +27,7 @@ namespace QuestEditor.ValueConverters
         {
             try
             {
-                bool equal = System.Convert.ToBoolean(value, culture);
+                bool equal = ToBoolean(value, culture);
                 if (equal)
                 {
                     return this.Other;

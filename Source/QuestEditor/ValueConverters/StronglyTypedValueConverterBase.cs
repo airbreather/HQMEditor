@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
+using static System.Convert;
+
 namespace QuestEditor.ValueConverters
 {
     public abstract class StronglyTypedValueConverterBase<TConvertFrom, TConvertTo> : IValueConverter
@@ -49,7 +51,7 @@ namespace QuestEditor.ValueConverters
             if (underlyingNullableType == null)
             {
                 // Not a nullable value-type.
-                return (T)System.Convert.ChangeType(boxedValue, typeof(T));
+                return (T)ChangeType(boxedValue, typeof(T));
             }
 
             // It's a nullable value-type -- if null, return default.
@@ -59,7 +61,7 @@ namespace QuestEditor.ValueConverters
             }
 
             // Non-null, so just cast the non-null to nullable.
-            return (T)System.Convert.ChangeType(boxedValue, underlyingNullableType);
+            return (T)ChangeType(boxedValue, underlyingNullableType);
         }
 
         protected abstract bool TryConvertForward(TConvertFrom fromValue, object parameter, CultureInfo culture, out TConvertTo toValue);
