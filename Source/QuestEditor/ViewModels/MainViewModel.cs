@@ -264,6 +264,7 @@ namespace QuestEditor.ViewModels
                 outputQuest.YPos = quest.YPos;
                 outputQuest.IsBig = quest.IsBig;
                 outputQuest.QuestSetId = quest.QuestSet.Id;
+                outputQuest.ModifiedParentRequirementCount = quest.ModifiedParentRequirement.UseModifiedParentRequirement ? quest.ModifiedParentRequirement.ModifiedParentRequirementCount : default(int?);
                 outputQuest.RepeatType = quest.RepeatOption.RepeatType;
                 outputQuest.RepeatIntervalHours = quest.RepeatOption.RepeatIntervalHours;
                 outputQuest.TriggerType = quest.TriggerOption.TriggerType;

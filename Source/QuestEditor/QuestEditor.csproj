@@ -75,6 +75,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ValueConverters\NegationValueConverter.cs" />
     <Compile Include="ViewModels\Conversions.cs" />
     <Compile Include="Dialogs.cs" />
     <Compile Include="ExtensionMethods.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="ViewModels\ItemStackViewModel.cs" />
     <Compile Include="ViewModels\QuestLinkViewModel.cs" />
     <Compile Include="ViewModels\QuestRepeatOptionViewModel.cs" />
+    <Compile Include="ViewModels\ModifiedParentRequirementViewModel.cs" />
     <Compile Include="ViewModels\QuestTriggerOptionViewModel.cs" />
     <Compile Include="ViewModels\ReputationMarkerViewModel.cs" />
     <Compile Include="ViewModels\ReputationViewModel.cs" />

@@ -30,6 +30,8 @@ namespace QuestEditor.ViewModels
             this.RepeatOption.RepeatIntervalHours = other.RepeatOption.RepeatIntervalHours;
             this.TriggerOption.TriggerType = other.TriggerOption.TriggerType;
             this.TriggerOption.TaskCount = other.TriggerOption.TaskCount;
+            this.ModifiedParentRequirement.UseModifiedParentRequirement = other.ModifiedParentRequirement.UseModifiedParentRequirement;
+            this.ModifiedParentRequirement.ModifiedParentRequirementCount = other.ModifiedParentRequirement.ModifiedParentRequirementCount;
         }
 
         private int id;
@@ -90,6 +92,7 @@ namespace QuestEditor.ViewModels
             set { this.Set(ref this.questSet, value); }
         }
         
+        public ModifiedParentRequirementViewModel ModifiedParentRequirement { get; } = new ModifiedParentRequirementViewModel();
         public QuestRepeatOptionViewModel RepeatOption { get; } = new QuestRepeatOptionViewModel();
         public QuestTriggerOptionViewModel TriggerOption { get; } = new QuestTriggerOptionViewModel();
 

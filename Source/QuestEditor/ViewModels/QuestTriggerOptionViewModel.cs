@@ -22,6 +22,6 @@ namespace QuestEditor.ViewModels
             set { this.Set(ref this.taskCount, value.ValidateMinAndMax(nameof(value), 0, Int32.MaxValue)); }
         }
 
-        private bool TaskCountIsRelevant => this.TriggerType == TriggerType.TaskCount;
+        public bool TaskCountIsRelevant => this.TriggerType == TriggerType.TaskCount;
     }
 }
