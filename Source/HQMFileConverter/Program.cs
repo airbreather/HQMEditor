@@ -31,6 +31,8 @@ namespace HQMFileConverter
 
             RoundTrip(hqmInput: @"C:\Temp\quests.hqm",
                       hqmOutput: @"C:\Temp\quests.hqm.rt");
+
+            TestReadingTruncatedFile();
         }
 
         private static void FixRemovedItemsIssue(string hqmInput, string itemDumpInput, string hqmOutput)
@@ -263,6 +265,35 @@ namespace HQMFileConverter
             using (var outputStream = File.OpenWrite(hqmOutput))
             {
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
+            }
+        }
+
+        private static void TestReadingTruncatedFile()
+        {
+            var questLine = new QuestLine
+            {
+                Version = 20,
+                Description = "D",
+                PassCode = "0",
+                QuestSets = new[] { new QuestSet { Name = "*", Description = "*" } },
+                Quests = new Quest[6],
+                Reputations = new Reputation[0],
+                Tiers = new RewardBagTier[0],
+                Bags = new[] { new RewardBag { Name = "*", Rewards = new[] { new ItemStack { ItemId = "minecraft:stone", Size = 1 } } } }
+            };
+
+            using (var stream = new MemoryStream())
+            {
+                new HQMQuestLineWriter().WriteQuestLine(questLine, stream);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                // scratch the last byte written, as HQM wouldn't write it in this case... see the
+                // debug output at this point in time to confirm that we had idx == 0 here.
+                stream.SetLength(stream.Length - 1);
+                questLine = new HQMQuestLineReader().ReadQuestLine(stream);
+
+                // see the debug output at this point in time to confirm that we had to recover from
+                // a single EndOfStreamException (a first-chance exception might have been raised).
             }
         }
 

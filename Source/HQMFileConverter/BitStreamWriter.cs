@@ -72,10 +72,11 @@ namespace HQMFileConverter
 
         public void WriteFinalBits()
         {
-            if (this.idx > 0)
-            {
-                this.stream.Write(this.curr);
-            }
+            // HQM proper does this conditionally, but *.hqm files from HQM proper get my reader to
+            // throw EndOfStreamException on the last byte sometimes, thus the workaround on the
+            // reader side.
+            System.Diagnostics.Debug.WriteLineIf(this.idx == 0, "idx == 0, writing one more 0-valued byte than HQM proper would have... stack trace: " + new System.Diagnostics.StackTrace());
+            this.stream.Write(this.curr);
         }
     }
 }

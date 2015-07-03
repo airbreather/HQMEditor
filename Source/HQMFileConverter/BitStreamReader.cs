@@ -49,7 +49,17 @@ namespace HQMFileConverter
 
             if (++this.idx == 8)
             {
-                this.curr = this.stream.ReadByte();
+                try
+                {
+                    this.curr = this.stream.ReadByte();
+                }
+                catch (EndOfStreamException)
+                {
+                    // I think this works around a bug in HQM proper...
+                    System.Diagnostics.Debug.WriteLine("working around premature end of stream, stack trace: " + new System.Diagnostics.StackTrace());
+                    this.curr = 0;
+                }
+
                 this.idx = 0;
             }
 
