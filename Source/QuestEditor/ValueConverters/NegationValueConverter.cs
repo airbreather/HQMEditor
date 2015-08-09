@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
+using System.Windows.Data;
 
 namespace QuestEditor.ValueConverters
 {
+    [ValueConversion(typeof(bool), typeof(bool))]
     public sealed class NegationValueConverter : StronglyTypedValueConverterBase<bool, bool>
     {
         protected override bool TryConvertForward(bool fromValue, object parameter, CultureInfo culture, out bool toValue)

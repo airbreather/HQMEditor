@@ -43,4 +43,11 @@ namespace QuestEditor.MarkupExtensions
 
         public override object ProvideValue(IServiceProvider serviceProvider) => ConverterInstance;
     }
+
+    public sealed class NullToVisibilityValueConverterExtension : MarkupExtension
+    {
+        private static readonly NullToVisibilityValueConverter ConverterInstance = new NullToVisibilityValueConverter();
+
+        public override object ProvideValue(IServiceProvider serviceProvider) => ConverterInstance;
+    }
 }

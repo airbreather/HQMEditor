@@ -29,8 +29,8 @@
             <TextBlock Grid.Row="0" Grid.Column="0" Text="ItemId: " />
             <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ItemStack.ItemId, UpdateSourceTrigger=PropertyChanged}" />
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Size: " Visibility="{Binding ItemStack.Size.HasValue, Converter={me:BooleanToVisibilityConverter}}" />
-            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ItemStack.Size, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ItemStack.Size.HasValue, Converter={me:BooleanToVisibilityConverter}}" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Size: " Visibility="{Binding ItemStack.Size, Converter={me:NullToVisibilityValueConverter}}" />
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ItemStack.Size, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ItemStack.Size, Converter={me:NullToVisibilityValueConverter}}" />
 
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Damage: " />
             <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ItemStack.Damage, UpdateSourceTrigger=PropertyChanged}" />
