@@ -75,6 +75,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Messages\EditItemStackMessage.cs" />
     <Compile Include="ValueConverters\NegationValueConverter.cs" />
     <Compile Include="ViewModels\Conversions.cs" />
     <Compile Include="Dialogs.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="ValueConverters\EqualityValueConverter.cs" />
     <Compile Include="ValueConverters\MouseModeToCursorValueConverter.cs" />
     <Compile Include="ValueConverters\StronglyTypedValueConverterBase.cs" />
+    <Compile Include="ViewModels\EditItemStackViewModel.cs" />
     <Compile Include="ViewModels\EditQuestViewModel.cs" />
     <Compile Include="ViewModels\ItemStackViewModel.cs" />
     <Compile Include="ViewModels\QuestLinkViewModel.cs" />
@@ -92,12 +94,19 @@
     <Compile Include="ViewModels\ReputationMarkerViewModel.cs" />
     <Compile Include="ViewModels\ReputationViewModel.cs" />
     <Compile Include="ViewModels\SelectStringViewModel.cs" />
+    <Compile Include="Views\EditItemStackWindow.xaml.cs">
+      <DependentUpon>EditItemStackWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SelectStringWindow.xaml.cs">
       <DependentUpon>SelectStringWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Resources\Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EditItemStackWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EditQuestWindow.xaml">
       <SubType>Designer</SubType>

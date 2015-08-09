@@ -43,7 +43,7 @@
             <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Quest.IsBig}" />
 
             <TextBlock Grid.Row="3" Grid.Column="0" Text="Icon: " />
-            <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource HyperlinkButtonStyle}" />
+            <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource HyperlinkButtonStyle}" Command="{Binding EditIconCommand, Mode=OneTime}" />
 
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Trigger: " />
             <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">

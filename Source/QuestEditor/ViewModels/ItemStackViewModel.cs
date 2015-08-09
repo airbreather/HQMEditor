@@ -4,6 +4,14 @@ namespace QuestEditor.ViewModels
 {
     public sealed class ItemStackViewModel : ViewModelBase
     {
+        public void CopyFrom(ItemStackViewModel other)
+        {
+            this.ItemId = other.itemId;
+            this.Size = other.size;
+            this.Damage = other.damage;
+            this.NBT = other.nbt;
+        }
+
         private string itemId;
         public string ItemId
         {

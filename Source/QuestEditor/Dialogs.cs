@@ -16,6 +16,7 @@ namespace QuestEditor
             messenger.Register<SelectSourceFileMessage>(recipient, SelectSourceFile);
             messenger.Register<SelectTargetFileMessage>(recipient, SelectTargetFile);
             messenger.Register<EditQuestMessage>(recipient, EditQuest);
+            messenger.Register<EditItemStackMessage>(recipient, EditItemStack);
             messenger.Register<SelectStringMessage>(recipient, SelectString);
         }
 
@@ -57,6 +58,14 @@ namespace QuestEditor
             Window sender = message.Target as Window;
 
             EditQuestWindow dlg = new EditQuestWindow(message.Quest) { Owner = sender };
+            message.Accepted = dlg.ShowDialog() == true;
+        }
+
+        private static void EditItemStack(EditItemStackMessage message)
+        {
+            Window sender = message.Target as Window;
+
+            EditItemStackWindow dlg = new EditItemStackWindow(message.ItemStack) { Owner = sender };
             message.Accepted = dlg.ShowDialog() == true;
         }
 
