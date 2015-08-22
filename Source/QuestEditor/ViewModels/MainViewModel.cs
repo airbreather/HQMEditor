@@ -160,11 +160,11 @@ namespace QuestEditor.ViewModels
                         TriggerType = quest.TriggerType,
                         TaskCount = quest.TriggerTaskCount
                     }
-
-                    // TODO: tasks.
-                    // TODO: reputation rewards.
                 };
 
+                q.ReplaceReputationRewards(quest.ReputationRewards.Select(reward => new ReputationRewardViewModel { ReputationId = reward.Id, Value = reward.Value }));
+
+                // TODO: tasks.
                 set.AddQuest(q);
                 questMapping.Add(q.Id, q);
             }
@@ -276,11 +276,10 @@ namespace QuestEditor.ViewModels
                 outputQuest.TriggerType = quest.TriggerOption.TriggerType;
                 outputQuest.TriggerTaskCount = quest.TriggerOption.TaskCount;
 
+                outputQuest.ReputationRewards = quest.ReputationRewards.Select(reward => new ReputationReward { Id = reward.ReputationId, Value = reward.Value }).ToArray();
+
                 // TODO: tasks.
                 outputQuest.Tasks = new QuestTask[0];
-
-                // TODO: reputation rewards.
-                outputQuest.ReputationRewards = new ReputationReward[0];
             }
 
             foreach (var questLink in this.questSetsMutable.SelectMany(questSet => questSet.QuestLinks).Concat(this.crossSetQuestLinksMutable))

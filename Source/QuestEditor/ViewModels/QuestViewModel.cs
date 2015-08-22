@@ -116,7 +116,7 @@ namespace QuestEditor.ViewModels
                 this.CopyFrom(copiedQuest);
             }
         }
-        
+
         internal void ReplaceReputationRewards(IEnumerable<ReputationRewardViewModel> newReputationRewards)
         {
             this.reputationRewardsMutable.Clear();
