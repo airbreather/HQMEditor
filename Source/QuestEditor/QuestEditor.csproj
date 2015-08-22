@@ -76,6 +76,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Messages\EditItemStackMessage.cs" />
+    <Compile Include="Messages\EditReputationRewardsMessage.cs" />
     <Compile Include="ValueConverters\NegationValueConverter.cs" />
     <Compile Include="ValueConverters\NullToVisibilityValueConverter.cs" />
     <Compile Include="ViewModels\Conversions.cs" />
@@ -87,14 +88,19 @@
     <Compile Include="ValueConverters\StronglyTypedValueConverterBase.cs" />
     <Compile Include="ViewModels\EditItemStackViewModel.cs" />
     <Compile Include="ViewModels\EditQuestViewModel.cs" />
+    <Compile Include="ViewModels\EditReputationRewardsViewModel.cs" />
     <Compile Include="ViewModels\ItemStackViewModel.cs" />
     <Compile Include="ViewModels\QuestLinkViewModel.cs" />
     <Compile Include="ViewModels\QuestRepeatOptionViewModel.cs" />
     <Compile Include="ViewModels\ModifiedParentRequirementViewModel.cs" />
     <Compile Include="ViewModels\QuestTriggerOptionViewModel.cs" />
     <Compile Include="ViewModels\ReputationMarkerViewModel.cs" />
+    <Compile Include="ViewModels\ReputationRewardViewModel.cs" />
     <Compile Include="ViewModels\ReputationViewModel.cs" />
     <Compile Include="ViewModels\SelectStringViewModel.cs" />
+    <Compile Include="Views\EditReputationRewardsWindow.xaml.cs">
+      <DependentUpon>EditReputationRewardsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EditItemStackWindow.xaml.cs">
       <DependentUpon>EditItemStackWindow.xaml</DependentUpon>
     </Compile>
@@ -104,6 +110,10 @@
     <Page Include="Resources\Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EditReputationRewardsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EditItemStackWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -90,7 +90,7 @@
             <Button Grid.Row="9" Grid.Column="1" Style="{StaticResource HyperlinkButtonStyle}" />
 
             <TextBlock Grid.Row="10" Grid.Column="0" Text="Reputation Rewards: " />
-            <Button Grid.Row="10" Grid.Column="1" Style="{StaticResource HyperlinkButtonStyle}" />
+            <Button Grid.Row="10" Grid.Column="1" Style="{StaticResource HyperlinkButtonStyle}" Command="{Binding EditReputationRewardsCommand}" />
         </Grid>
     </DockPanel>
 </Window>

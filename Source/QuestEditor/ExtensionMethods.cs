@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -28,7 +29,23 @@ namespace QuestEditor
             ValidateMinAndMaxCore(value, paramName, min, max);
             return value;
         }
-        
+
+        public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+        {
+            List<T> list = collection as List<T>;
+            if (list != null)
+            {
+                // List<T> is more optimized than our version.
+                list.AddRange(values);
+                return;
+            }
+
+            foreach (T value in values)
+            {
+                collection.Add(value);
+            }
+        }
+
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ValidateNotNullCore<T>(T value, string paramName) where T : class

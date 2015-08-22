@@ -18,6 +18,7 @@ namespace QuestEditor
             messenger.Register<EditQuestMessage>(recipient, EditQuest);
             messenger.Register<EditItemStackMessage>(recipient, EditItemStack);
             messenger.Register<SelectStringMessage>(recipient, SelectString);
+            messenger.Register<EditReputationRewardsMessage>(recipient, EditReputationRewards);
         }
 
         private static void SelectSourceFile(SelectSourceFileMessage message)
@@ -82,6 +83,20 @@ namespace QuestEditor
 
             message.Accepted = true;
             message.StringValue = viewModel.Value;
+        }
+
+        private static void EditReputationRewards(EditReputationRewardsMessage message)
+        {
+            Window sender = message.Target as Window;
+
+            EditReputationRewardsViewModel viewModel = new EditReputationRewardsViewModel(message.ReputationRewards);
+            EditReputationRewardsWindow dlg = new EditReputationRewardsWindow(viewModel) { Owner = sender };
+            if (dlg.ShowDialog() != true)
+            {
+                return;
+            }
+
+            message.Accepted = true;
         }
     }
 }

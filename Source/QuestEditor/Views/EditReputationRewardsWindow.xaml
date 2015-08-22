@@ -1,0 +1,50 @@
+﻿<Window x:Class="QuestEditor.Views.EditReputationRewardsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="clr-namespace:HQMFileConverter;assembly=HQMFileConverter"
+        xmlns:vm="clr-namespace:QuestEditor.ViewModels"
+        xmlns:me="clr-namespace:QuestEditor.MarkupExtensions"
+        Title="Editing Reputation Rewards"
+        SizeToContent="WidthAndHeight"
+        Name="ThisWindow"
+        DataContext="{Binding ViewModel, RelativeSource={RelativeSource Self}}">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,5,0,0">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Command="{Binding AddReputationRewardCommand}">Add</Button>
+                <Button Margin="5,0,0,0" Command="{Binding DeleteReputationRewardCommand}" CommandParameter="{Binding SelectedReputationReward}">Delete</Button>
+            </StackPanel>
+            
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button IsDefault="True" Click="OnOKButtonClick" IsEnabled="{Binding IsValid}">OK</Button>
+                <Button IsCancel="True" Margin="5,0,0,0" Content="Cancel" />
+            </StackPanel>
+        </DockPanel>
+
+        <ListBox ItemsSource="{Binding ReputationRewards}" SelectedItem="{Binding SelectedReputationReward}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="vm:ReputationRewardViewModel">
+                    <Border Margin="0,5,0,0" BorderBrush="Black" BorderThickness="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Reputation ID:" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="5,0,0,0" Text="{Binding ReputationId}" />
+
+                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Value:" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="5,0,0,0" Text="{Binding Value}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

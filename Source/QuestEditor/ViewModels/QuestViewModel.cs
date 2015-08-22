@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows;
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -13,7 +15,7 @@ namespace QuestEditor.ViewModels
         {
             this.id = -1;
             this.EditCommand = new RelayCommand(this.Edit);
-            this.EditItemCommand = new RelayCommand(this.EditItem);
+            this.ReputationRewards = new ReadOnlyObservableCollection<ReputationRewardViewModel>(this.reputationRewardsMutable);
         }
 
         public void CopyFrom(QuestViewModel other)
@@ -32,6 +34,8 @@ namespace QuestEditor.ViewModels
             this.TriggerOption.TaskCount = other.TriggerOption.TaskCount;
             this.ModifiedParentRequirement.UseModifiedParentRequirement = other.ModifiedParentRequirement.UseModifiedParentRequirement;
             this.ModifiedParentRequirement.ModifiedParentRequirementCount = other.ModifiedParentRequirement.ModifiedParentRequirementCount;
+            this.reputationRewardsMutable.Clear();
+            this.reputationRewardsMutable.AddRange(other.reputationRewardsMutable);
         }
 
         private int id;
@@ -85,6 +89,9 @@ namespace QuestEditor.ViewModels
             set { this.Set(ref this.isBig, value); }
         }
 
+        private readonly ObservableCollection<ReputationRewardViewModel> reputationRewardsMutable = new ObservableCollection<ReputationRewardViewModel>();
+        public ReadOnlyObservableCollection<ReputationRewardViewModel> ReputationRewards { get; }
+
         private QuestSetViewModel questSet;
         public QuestSetViewModel QuestSet
         {
@@ -109,19 +116,11 @@ namespace QuestEditor.ViewModels
                 this.CopyFrom(copiedQuest);
             }
         }
-
-        public RelayCommand EditItemCommand { get; }
-        private void EditItem()
+        
+        internal void ReplaceReputationRewards(IEnumerable<ReputationRewardViewModel> newReputationRewards)
         {
-            QuestViewModel copiedQuest = new QuestViewModel();
-            copiedQuest.CopyFrom(this);
-
-            EditQuestMessage message = new EditQuestMessage { Quest = copiedQuest };
-            this.MessengerInstance.Send(message);
-            if (message.Accepted)
-            {
-                this.CopyFrom(copiedQuest);
-            }
+            this.reputationRewardsMutable.Clear();
+            this.reputationRewardsMutable.AddRange(newReputationRewards);
         }
     }
 }

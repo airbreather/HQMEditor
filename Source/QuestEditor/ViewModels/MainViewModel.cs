@@ -53,6 +53,9 @@ namespace QuestEditor.ViewModels
             this.QuestSets = new ReadOnlyObservableCollection<QuestSetViewModel>(this.questSetsMutable);
             this.CrossSetQuestLinks = new ReadOnlyObservableCollection<QuestLinkViewModel>(this.crossSetQuestLinksMutable);
             this.Reputations = new ReadOnlyObservableCollection<ReputationViewModel>(this.reputationsMutable);
+
+            this.passCode = "something";
+            this.description = "A questline for ants.";
         }
 
         private QuestSetViewModel selectedQuestSet;
@@ -157,6 +160,9 @@ namespace QuestEditor.ViewModels
                         TriggerType = quest.TriggerType,
                         TaskCount = quest.TriggerTaskCount
                     }
+
+                    // TODO: tasks.
+                    // TODO: reputation rewards.
                 };
 
                 set.AddQuest(q);
