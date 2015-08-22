@@ -40,7 +40,7 @@ namespace QuestEditor.ViewModels
         public RelayCommand EditReputationRewardsCommand { get; }
         private void EditReputationRewards()
         {
-            ObservableCollection<ReputationRewardViewModel> reputationRewards = new ObservableCollection<ReputationRewardViewModel>(this.Quest.ReputationRewards.AsEnumerable());
+            ObservableCollection<ReputationRewardViewModel> reputationRewards = new ObservableCollection<ReputationRewardViewModel>(this.Quest.ReputationRewards.Select(reward => new ReputationRewardViewModel(reward)));
             
             EditReputationRewardsMessage message = new EditReputationRewardsMessage { ReputationRewards = reputationRewards };
             this.MessengerInstance.Send(message);

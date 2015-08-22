@@ -4,6 +4,16 @@ namespace QuestEditor.ViewModels
 {
     public sealed class ReputationRewardViewModel : ViewModelBase
     {
+        public ReputationRewardViewModel()
+        {
+        }
+
+        public ReputationRewardViewModel(ReputationRewardViewModel copyFrom)
+        {
+            this.reputationId = copyFrom.reputationId;
+            this.value = copyFrom.value;
+        }
+
         private int reputationId;
         public int ReputationId
         {
