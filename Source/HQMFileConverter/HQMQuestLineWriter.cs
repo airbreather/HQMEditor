@@ -22,6 +22,14 @@ namespace HQMFileConverter
 
                     writer.WriteString(questSet.Name, 5);
                     writer.WriteString(questSet.Description, 16);
+
+                    writer.WriteInt32(questSet.ReputationBars.Length, 8);
+                    for (int reputationBarIndex = 0; reputationBarIndex < questSet.ReputationBars.Length; reputationBarIndex++)
+                    {
+                        ReputationBar reputationBar = questSet.ReputationBars[reputationBarIndex];
+
+                        writer.WriteInt32(reputationBar.Data, 32);
+                    }
                 }
 
                 writer.WriteInt32(questLine.Reputations.Length, 8);
@@ -164,7 +172,7 @@ namespace HQMFileConverter
                                         writer.WriteNBT(requirement.ItemStack.NBT);
 
                                         writer.WriteInt32(requirement.Amount, 32);
-                                        writer.WriteInt32((int)requirement.Precision, 2);
+                                        writer.WriteString(requirement.PrecisionId, 30);
                                     }
                                     else
                                     {

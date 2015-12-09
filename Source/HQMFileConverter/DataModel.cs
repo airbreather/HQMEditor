@@ -2,14 +2,6 @@
 
 namespace HQMFileConverter
 {
-    public enum Detection : byte
-    {
-        Precise = 0,
-        NBTIndependent = 1,
-        Fuzzy = 2,
-        OreDictionary = 3
-    }
-
     public enum ItemType : byte
     {
         Item,
@@ -111,6 +103,12 @@ namespace HQMFileConverter
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public ReputationBar[] ReputationBars { get; set; }
+    }
+
+    public sealed class ReputationBar
+    {
+        public int Data { get; set; }
     }
 
     public sealed class Quest
@@ -161,7 +159,7 @@ namespace HQMFileConverter
         public ItemType Type { get; set; }
         public ItemStack ItemStack { get; set; }
         public int Amount { get; set; }
-        public Detection Precision { get; set; }
+        public string PrecisionId { get; set; }
     }
 
     public sealed class LocationQuestTask : QuestTask

@@ -14,9 +14,9 @@ namespace HQMFileConverter
                 QuestLine questLine = new QuestLine();
                 questLine.Version = reader.ReadInt32(8);
 
-                if (questLine.Version != 20)
+                if (questLine.Version != 22)
                 {
-                    throw new NotSupportedException("Version must be 20.");
+                    throw new NotSupportedException("Version must be 22.");
                 }
 
                 questLine.PassCode = reader.ReadString(7);
@@ -29,6 +29,12 @@ namespace HQMFileConverter
                     questSet.Id = questSetIndex;
                     questSet.Name = reader.ReadString(5);
                     questSet.Description = reader.ReadString(16);
+
+                    ReputationBar[] reputationBars = questSet.ReputationBars = new ReputationBar[reader.ReadInt32(8)];
+                    for (int reputationBarIndex = 0; reputationBarIndex < reputationBars.Length; reputationBarIndex++)
+                    {
+                        reputationBars[reputationBarIndex] = new ReputationBar { Data = reader.ReadInt32(32) };
+                    }
                 }
 
                 questLine.Reputations = new Reputation[reader.ReadInt32(8)];
@@ -158,7 +164,7 @@ namespace HQMFileConverter
                                         requirement.ItemStack.NBT = reader.ReadNBT();
 
                                         requirement.Amount = reader.ReadInt32(32);
-                                        requirement.Precision = (Detection)reader.ReadInt32(2);
+                                        requirement.PrecisionId = reader.ReadString(30);
                                     }
                                     else
                                     {
