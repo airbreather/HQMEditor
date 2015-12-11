@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using fNbt;
+using System.Threading.Tasks;
 
 namespace HQMFileConverter
 {
@@ -32,6 +33,8 @@ namespace HQMFileConverter
             RoundTrip(hqmInput: @"C:\Temp\quests.hqm",
                       hqmOutput: @"C:\Temp\quests.hqm.rt");
 
+            GetItemsWithNameTags(hqmInput: @"C:\Temp\questsforrewards.hqm",
+                                 hqmOutput: @"C:\Temp\questsFixed3.hqm");
             TestReadingTruncatedFile();
         }
 
@@ -128,16 +131,8 @@ namespace HQMFileConverter
             {
                 questLine = new HQMQuestLineReader().ReadQuestLine(inputStream);
             }
-            var bag = questLine.Bags.Single(b => b.Id == 30);
 
-            ItemStack chris = bag.Rewards[0];
-
-            // His name was "Chris the Unwielding" before.
-            chris.NBT.Changed = true;
-            chris.NBT.RootTag
-                     .Get<NbtCompound>("display")
-                     .Get<NbtString>("Name")
-                     .Value = "Chris the Wielding";
+            questLine.Accept(new RenameChrisItemStackVisitor());
 
             using (var outputStream = File.OpenWrite(hqmOutput))
             {
@@ -261,24 +256,64 @@ namespace HQMFileConverter
                     }
                 }
             }
-            
+
             using (var outputStream = File.OpenWrite(hqmOutput))
             {
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
             }
         }
 
+        private static void Replace(Quest oldQuest, Quest newQuest)
+        {
+            newQuest.CommonRewards = oldQuest.CommonRewards;
+            newQuest.Description = oldQuest.Description;
+            newQuest.Icon = oldQuest.Icon;
+            newQuest.IsBig = oldQuest.IsBig;
+            newQuest.ModifiedParentRequirementCount = oldQuest.ModifiedParentRequirementCount;
+            newQuest.PickOneRewards = oldQuest.PickOneRewards;
+            newQuest.RepeatIntervalHours = oldQuest.RepeatIntervalHours;
+            newQuest.RepeatType = oldQuest.RepeatType;
+            newQuest.ReputationRewards = oldQuest.ReputationRewards;
+            newQuest.Tasks = oldQuest.Tasks;
+            newQuest.TriggerTaskCount = oldQuest.TriggerTaskCount;
+            newQuest.TriggerType = oldQuest.TriggerType;
+            newQuest.XPos = oldQuest.XPos;
+            newQuest.YPos = oldQuest.YPos;
+        }
+
+        private static void GetItemsWithNameTags(string hqmInput, string hqmOutput)
+        {
+            QuestLine questLine;
+            using (var inputStream = File.OpenRead(hqmInput))
+            {
+                questLine = new HQMQuestLineReader().ReadQuestLine(inputStream);
+            }
+
+            BlockingCollection<ItemStack> items = new BlockingCollection<ItemStack>();
+            MyItemStackVisitor visitor = new MyItemStackVisitor(items);
+            Task.Run(() => questLine.Accept(visitor));
+
+            foreach (var item in items.GetConsumingEnumerable().Where(item => item.ItemId != null && item.NameTag != null))
+            {
+                // breakpoint
+                int xx = 0;
+            }
+
+            using (var outputStream = File.OpenWrite(hqmOutput))
+            {
+                new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
+            }
+        }
+        
         private static void TestReadingTruncatedFile()
         {
             var questLine = new QuestLine
             {
-                Version = 20,
+                Version = 22,
                 Description = "D",
                 PassCode = "0",
                 QuestSets = new[] { new QuestSet { Name = "*", Description = "*" } },
                 Quests = new Quest[6],
-                Reputations = new Reputation[0],
-                Tiers = new RewardBagTier[0],
                 Bags = new[] { new RewardBag { Name = "*", Rewards = new[] { new ItemStack { ItemId = "minecraft:stone", Size = 1 } } } }
             };
 
@@ -296,7 +331,6 @@ namespace HQMFileConverter
                 // a single EndOfStreamException (a first-chance exception might have been raised).
             }
         }
-
         private static void RoundTrip(string hqmInput, string hqmOutput)
         {
             QuestLine questLine;
@@ -308,6 +342,49 @@ namespace HQMFileConverter
             using (var outputStream = File.OpenWrite(hqmOutput))
             {
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
+            }
+        }
+
+        private sealed class RenameChrisItemStackVisitor : IVisitor<ItemStack>
+        {
+            public void Begin()
+            {
+            }
+
+            public void End()
+            {
+            }
+
+            public void Visit(ItemStack node)
+            {
+                if (node.NameTag == "Chris the Unwielding")
+                {
+                    node.NameTag = "Chris the Wielding";
+                }
+            }
+        }
+
+        private sealed class MyItemStackVisitor : IVisitor<ItemStack>
+        {
+            private readonly BlockingCollection<ItemStack> coll;
+
+            internal MyItemStackVisitor(BlockingCollection<ItemStack> coll)
+            {
+                this.coll = coll;
+            }
+
+            public void Begin()
+            {
+            }
+
+            public void Visit(ItemStack node)
+            {
+                this.coll.Add(node);
+            }
+
+            public void End()
+            {
+                this.coll.CompleteAdding();
             }
         }
     }
