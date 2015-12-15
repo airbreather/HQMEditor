@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -30,13 +31,49 @@ namespace HQMFileConverter
             ////                   descInput: @"C:\Temp\descriptions.txt",
             ////                   hqmOutput: @"C:\Temp\q3-desc.hqm");
 
+            GetItemsWithNameTags(hqmInput: @"C:\Temp\questsforrewards.hqm",
+                                 hqmOutput: @"C:\Temp\questsFixed3.hqm");
+
+            TestReadingTruncatedFile();
+
             RoundTrip(hqmInput: @"C:\Temp\quests.hqm",
                       hqmOutput: @"C:\Temp\quests.hqm.rt");
 
-            GetItemsWithNameTags(hqmInput: @"C:\Temp\questsforrewards.hqm",
-                                 hqmOutput: @"C:\Temp\questsFixed3.hqm");
-            TestReadingTruncatedFile();
+            // TODO: write this!  it would remove nulls in the quests array & update dependencies.
+            // It would also likely FAIL if there have ever been saves for the old version.
+            ////CompactQuests(hqmInput: "...",
+            ////              hqmOutput: "...");
         }
+
+        #region Just do a round-trip (the basis for all other transformations)
+
+        private static void RoundTrip(string hqmInput, string hqmOutput)
+        {
+            QuestLine questLine;
+            using (var inputStream = File.OpenRead(hqmInput))
+            {
+                questLine = new HQMQuestLineReader().ReadQuestLine(inputStream);
+            }
+
+            // transformation goes here!
+
+            using (var outputStream = File.OpenWrite(hqmOutput))
+            {
+                new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
+            }
+
+            // delete everything else in clones!
+            byte[] inputBytes = File.ReadAllBytes(hqmInput);
+            byte[] outputBytes = File.ReadAllBytes(hqmOutput);
+            if (!inputBytes.SequenceEqual(outputBytes))
+            {
+                throw new Exception("round-trip changed data!");
+            }
+        }
+
+        #endregion
+
+        #region Deal with invalid items (obsolete after CPW's fixes)
 
         private static void FixRemovedItemsIssue(string hqmInput, string itemDumpInput, string hqmOutput)
         {
@@ -80,6 +117,10 @@ namespace HQMFileConverter
             }
         }
 
+        #endregion
+
+        #region Work around performance issue
+
         private static void FixDependenciesIssue(string hqmInput, string hqmOutput)
         {
             QuestLine questLine;
@@ -100,6 +141,10 @@ namespace HQMFileConverter
             }
         }
 
+        #endregion
+
+        #region Remove empty reward bags
+
         private static void RemoveEmptyRewardBags(string hqmInput, string hqmOutput)
         {
             QuestLine questLine;
@@ -118,6 +163,10 @@ namespace HQMFileConverter
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
             }
         }
+
+        #endregion
+
+        #region Rename an Item Stack's NameTag
 
         private static void RenameChris(string hqmInput, string hqmOutput)
         {
@@ -139,6 +188,21 @@ namespace HQMFileConverter
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
             }
         }
+
+        private sealed class RenameChrisItemStackVisitor : VisitorBase<ItemStack>
+        {
+            public override void Visit(ItemStack node)
+            {
+                if (node.NameTag == "Chris the Unwielding")
+                {
+                    node.NameTag = "Chris the Wielding";
+                }
+            }
+        }
+
+        #endregion
+
+        #region Import writing work from external file (obsolete now that we have JSON)
 
         private static void ImportDescriptions(string hqmInput, string descInput, string hqmOutput)
         {
@@ -263,23 +327,9 @@ namespace HQMFileConverter
             }
         }
 
-        private static void Replace(Quest oldQuest, Quest newQuest)
-        {
-            newQuest.CommonRewards = oldQuest.CommonRewards;
-            newQuest.Description = oldQuest.Description;
-            newQuest.Icon = oldQuest.Icon;
-            newQuest.IsBig = oldQuest.IsBig;
-            newQuest.ModifiedParentRequirementCount = oldQuest.ModifiedParentRequirementCount;
-            newQuest.PickOneRewards = oldQuest.PickOneRewards;
-            newQuest.RepeatIntervalHours = oldQuest.RepeatIntervalHours;
-            newQuest.RepeatType = oldQuest.RepeatType;
-            newQuest.ReputationRewards = oldQuest.ReputationRewards;
-            newQuest.Tasks = oldQuest.Tasks;
-            newQuest.TriggerTaskCount = oldQuest.TriggerTaskCount;
-            newQuest.TriggerType = oldQuest.TriggerType;
-            newQuest.XPos = oldQuest.XPos;
-            newQuest.YPos = oldQuest.YPos;
-        }
+        #endregion
+
+        #region Get all items with nametags (requires breakpoint to be meaningful)
 
         private static void GetItemsWithNameTags(string hqmInput, string hqmOutput)
         {
@@ -304,7 +354,24 @@ namespace HQMFileConverter
                 new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
             }
         }
-        
+
+        private sealed class MyItemStackVisitor : VisitorBase<ItemStack>
+        {
+            private readonly BlockingCollection<ItemStack> coll;
+
+            internal MyItemStackVisitor(BlockingCollection<ItemStack> coll)
+            {
+                this.coll = coll;
+            }
+
+            public override void Visit(ItemStack node) => this.coll.Add(node);
+            public override void End() => this.coll.CompleteAdding();
+        }
+
+        #endregion
+
+        #region Tests reading a file that HQM would have truncated by 1 byte
+
         private static void TestReadingTruncatedFile()
         {
             var questLine = new QuestLine
@@ -331,61 +398,66 @@ namespace HQMFileConverter
                 // a single EndOfStreamException (a first-chance exception might have been raised).
             }
         }
-        private static void RoundTrip(string hqmInput, string hqmOutput)
-        {
-            QuestLine questLine;
-            using (var inputStream = File.OpenRead(hqmInput))
-            {
-                questLine = new HQMQuestLineReader().ReadQuestLine(inputStream);
-            }
 
-            using (var outputStream = File.OpenWrite(hqmOutput))
-            {
-                new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
-            }
+        #endregion
+
+        #region Miscellaneous, unused
+
+        private static void Replace(Quest oldQuest, Quest newQuest)
+        {
+            newQuest.CommonRewards = oldQuest.CommonRewards;
+            newQuest.Description = oldQuest.Description;
+            newQuest.Icon = oldQuest.Icon;
+            newQuest.IsBig = oldQuest.IsBig;
+            newQuest.ModifiedParentRequirementCount = oldQuest.ModifiedParentRequirementCount;
+            newQuest.PickOneRewards = oldQuest.PickOneRewards;
+            newQuest.RepeatIntervalHours = oldQuest.RepeatIntervalHours;
+            newQuest.RepeatType = oldQuest.RepeatType;
+            newQuest.ReputationRewards = oldQuest.ReputationRewards;
+            newQuest.Tasks = oldQuest.Tasks;
+            newQuest.TriggerTaskCount = oldQuest.TriggerTaskCount;
+            newQuest.TriggerType = oldQuest.TriggerType;
+            newQuest.XPos = oldQuest.XPos;
+            newQuest.YPos = oldQuest.YPos;
         }
 
-        private sealed class RenameChrisItemStackVisitor : IVisitor<ItemStack>
+        private sealed class QuestTaskDescriptionVisitor : VisitorBase<QuestTask>
         {
-            public void Begin()
+            private static readonly Dictionary<QuestTaskType, string> ItemTypeDefaults = new Dictionary<QuestTaskType, string>
             {
-            }
+                [QuestTaskType.Consume] = "A task where the player can hand in items or fluids. One can also use the Quest Delivery System to submit items and fluids.",
+                [QuestTaskType.Craft] = "A task where the player has to craft specific items.",
+                [QuestTaskType.Detection] = "A task where the player needs specific items. These do not have to be handed in, having them in one's inventory is enough.",
+            };
 
-            public void End()
+            private static readonly Dictionary<Type, string> TaskTypeDefaults = new Dictionary<Type, string>
             {
-            }
+                [typeof(MobQuestTask)] = "A task where the player has to kill certain monsters.",
+                [typeof(DeathQuestTask)] = "A task where the player has to die a certain amount of times.",
+                [typeof(LocationQuestTask)] = "A task where the player has to reach one or more locations.",
+                [typeof(ReputationTargetQuestTask)] = "A task where the player has to reach a certain reputation."
+            };
 
-            public void Visit(ItemStack node)
+            private readonly List<QuestTask> tasksToLookFor = new List<QuestTask>();
+            internal ReadOnlyCollection<QuestTask> TasksToLookFor => this.tasksToLookFor.AsReadOnly();
+
+            public override void Visit(QuestTask node)
             {
-                if (node.NameTag == "Chris the Unwielding")
+                string defaultDescription;
+                ItemQuestTask itemQuestTask = node as ItemQuestTask;
+
+                if (((itemQuestTask != null &&
+                      ItemTypeDefaults.TryGetValue(itemQuestTask.TaskType, out defaultDescription)) ||
+                     TaskTypeDefaults.TryGetValue(node.GetType(), out defaultDescription)) &&
+                    defaultDescription == node.Description)
                 {
-                    node.NameTag = "Chris the Wielding";
+                    return;
                 }
+
+                this.tasksToLookFor.Add(node);
             }
         }
 
-        private sealed class MyItemStackVisitor : IVisitor<ItemStack>
-        {
-            private readonly BlockingCollection<ItemStack> coll;
-
-            internal MyItemStackVisitor(BlockingCollection<ItemStack> coll)
-            {
-                this.coll = coll;
-            }
-
-            public void Begin()
-            {
-            }
-
-            public void Visit(ItemStack node)
-            {
-                this.coll.Add(node);
-            }
-
-            public void End()
-            {
-                this.coll.CompleteAdding();
-            }
-        }
+        #endregion
     }
 }

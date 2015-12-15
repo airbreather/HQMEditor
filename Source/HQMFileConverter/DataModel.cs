@@ -83,6 +83,19 @@ namespace HQMFileConverter
         void End();
     }
 
+    public abstract class VisitorBase<T> : IVisitor<T>
+    {
+        public virtual void Begin()
+        {
+        }
+
+        public virtual void End()
+        {
+        }
+
+        public abstract void Visit(T node);
+    }
+
     public sealed class QuestLine
     {
         public int Version { get; set; } = 22;
@@ -127,7 +140,7 @@ namespace HQMFileConverter
         public void Accept(IVisitor<Quest> visitor)
         {
             visitor.Begin();
-            foreach (var quest in this.Quests ?? Enumerable.Empty<Quest>().Where(quest => quest != null))
+            foreach (var quest in (this.Quests ?? Enumerable.Empty<Quest>()).Where(quest => quest != null))
             {
                 visitor.Visit(quest);
             }
@@ -152,6 +165,22 @@ namespace HQMFileConverter
             foreach (var bag in this.Bags ?? Enumerable.Empty<RewardBag>())
             {
                 visitor.Visit(bag);
+            }
+
+            visitor.End();
+        }
+
+        public void Accept(IVisitor<QuestTask> visitor)
+        {
+            var tasks = from quest in this.Quests
+                        where quest != null
+                        from task in quest.Tasks
+                        select task;
+
+            visitor.Begin();
+            foreach (var task in tasks)
+            {
+                visitor.Visit(task);
             }
 
             visitor.End();
