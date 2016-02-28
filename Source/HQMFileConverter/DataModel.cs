@@ -96,6 +96,13 @@ namespace HQMFileConverter
         public abstract void Visit(T node);
     }
 
+    public sealed class NullVisitor<T> : VisitorBase<T>
+    {
+        public override void Visit(T node)
+        {
+        }
+    }
+
     public sealed class QuestLine
     {
         public int Version { get; set; } = 22;

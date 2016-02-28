@@ -12,8 +12,69 @@ namespace HQMFileConverter
 {
     internal static class Program
     {
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
+            if (args.Length != 1)
+            {
+                Console.WriteLine("pass either an HQM or a XAML file");
+                return 1;
+            }
+
+            IQuestLineReader reader;
+            IQuestLineWriter writer;
+
+            string inputPath = args[0];
+            string outputPath;
+
+            // if we're given a XAML file, write out the equivalent HQM file.
+            // if we're given a HQM file, write out the equivalent XAML file.
+            switch (Path.GetExtension(inputPath))
+            {
+                case ".xaml":
+                    reader = new XamlQuestLineReader();
+                    writer = new HQMQuestLineWriter();
+                    outputPath = Path.ChangeExtension(inputPath, "hqm");
+                    break;
+
+                case ".hqm":
+                    reader = new HQMQuestLineReader();
+                    writer = new XamlQuestLineWriter();
+                    outputPath = Path.ChangeExtension(inputPath, "xaml");
+                    break;
+
+                default:
+                    Console.WriteLine("pass either an HQM or a XAML file");
+                    return 1;
+            }
+
+            // visitor is irrelevant in this case -- the magic is in the reader / writer.
+            Transform(inputPath, outputPath, new NullVisitor<QuestLine>(), reader, writer);
+            return 0;
+        }
+
+        private static void Transform(string inputPath, string outputPath, IVisitor<QuestLine> visitor, IQuestLineReader reader, IQuestLineWriter writer)
+        {
+            QuestLine questLine;
+            using (var input = File.OpenRead(inputPath))
+            {
+                questLine = reader.ReadQuestLine(input);
+            }
+
+            questLine.Accept(visitor);
+
+            using (var output = File.OpenWrite(outputPath))
+            {
+                writer.WriteQuestLine(questLine, output);
+            }
+        }
+
+        #region Old Placeholder Main
+
+        // this one was "Main" as a placeholder until I found something to reliably do there.
+        private static void Main2(string[] args)
+        {
+            XamlRoundTrip(@"C:\Temp\quests.hqm", @"C:\Temp\quests.xaml", @"C:\Temp\quests-rt.hqm");
+
             FixRemovedItemsIssue(hqmInput: @"C:\Temp\quests.hqm",
                                  itemDumpInput: @"C:\Temp\item.csv",
                                  hqmOutput: @"C:\Temp\quests.hqm.fixed1");
@@ -27,9 +88,9 @@ namespace HQMFileConverter
             RenameChris(hqmInput: @"C:\Temp\quests.hqm",
                         hqmOutput: @"C:\Temp\quests.hqm.fixed4");
 
-            ////ImportDescriptions(hqmInput: @"C:\Temp\q3.hqm",
-            ////                   descInput: @"C:\Temp\descriptions.txt",
-            ////                   hqmOutput: @"C:\Temp\q3-desc.hqm");
+            ImportDescriptions(hqmInput: @"C:\Temp\q3.hqm",
+                               descInput: @"C:\Temp\descriptions.txt",
+                               hqmOutput: @"C:\Temp\q3-desc.hqm");
 
             GetItemsWithNameTags(hqmInput: @"C:\Temp\questsforrewards.hqm",
                                  hqmOutput: @"C:\Temp\questsFixed3.hqm");
@@ -40,10 +101,12 @@ namespace HQMFileConverter
                       hqmOutput: @"C:\Temp\quests.hqm.rt");
 
             // TODO: write this!  it would remove nulls in the quests array & update dependencies.
-            // It would also likely FAIL if there have ever been saves for the old version.
+            // It would fail quietly if there have ever been saves for the old version.
             ////CompactQuests(hqmInput: "...",
             ////              hqmOutput: "...");
         }
+
+        #endregion
 
         #region Just do a round-trip (the basis for all other transformations)
 
@@ -68,6 +131,34 @@ namespace HQMFileConverter
             if (!inputBytes.SequenceEqual(outputBytes))
             {
                 throw new Exception("round-trip changed data!");
+            }
+        }
+
+        #endregion
+
+        #region Round-trip using XAML too.
+
+        private static void XamlRoundTrip(string hqmInput, string xamlOutput, string hqmOutput)
+        {
+            QuestLine questLine;
+            using (var inputStream = File.OpenRead(hqmInput))
+            {
+                questLine = new HQMQuestLineReader().ReadQuestLine(inputStream);
+            }
+
+            using (var outputStream = File.Create(xamlOutput))
+            {
+                new XamlQuestLineWriter().WriteQuestLine(questLine, outputStream);
+            }
+
+            using (var inputStream = File.OpenRead(xamlOutput))
+            {
+                questLine = new XamlQuestLineReader().ReadQuestLine(inputStream);
+            }
+
+            using (var outputStream = File.OpenWrite(hqmOutput))
+            {
+                new HQMQuestLineWriter().WriteQuestLine(questLine, outputStream);
             }
         }
 
