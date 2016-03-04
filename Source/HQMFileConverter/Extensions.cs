@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HQMFileConverter
 {
@@ -35,6 +36,19 @@ namespace HQMFileConverter
                 }
 
                 return result;
+            }
+        }
+
+        public static void Visit<T>(this IVisitor<T> visitor, IEnumerable<T> source, bool visitNulls)
+        {
+            if (!visitNulls)
+            {
+                source = source.Where(val => val != null);
+            }
+
+            foreach (T val in source)
+            {
+                visitor.Visit(val);
             }
         }
     }

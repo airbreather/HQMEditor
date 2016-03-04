@@ -195,56 +195,51 @@ namespace HQMFileConverter
 
         public void Accept(IVisitor<ItemStack> visitor)
         {
+            visitor.Begin();
+
             var bagItems = from bag in this.Bags
                            from item in bag.Rewards
                            select item;
 
+            visitor.Visit(bagItems, visitNulls: false);
+
             var questIcons = from quest in this.Quests
-                             where quest != null
-                             select quest.Icon;
+                             select quest?.Icon;
+
+            visitor.Visit(questIcons, visitNulls: false);
 
             var questRewardsCommon = from quest in this.Quests
-                                     where quest != null
-                                     from reward in quest.CommonRewards ?? Enumerable.Empty<ItemStack>()
+                                     from reward in quest?.CommonRewards ?? Enumerable.Empty<ItemStack>()
                                      select reward;
 
+            visitor.Visit(questRewardsCommon, visitNulls: false);
+
             var questRewardsPickOne = from quest in this.Quests
-                                      where quest != null
-                                      from reward in quest.PickOneRewards ?? Enumerable.Empty<ItemStack>()
+                                      from reward in quest?.PickOneRewards ?? Enumerable.Empty<ItemStack>()
                                       select reward;
 
+            visitor.Visit(questRewardsPickOne, visitNulls: false);
+
             var requirements = from quest in this.Quests
-                               where quest != null
-                               from task in quest.Tasks.OfType<ItemQuestTask>()
+                               from task in quest?.Tasks?.OfType<ItemQuestTask>() ?? Enumerable.Empty<ItemQuestTask>()
                                from requirement in task.Requirements
                                select requirement.ItemStack;
 
+            visitor.Visit(requirements, visitNulls: false);
+
             var requirementIcons1 = from quest in this.Quests
-                                    where quest != null
-                                    from task in quest.Tasks.OfType<LocationQuestTask>()
+                                    from task in quest?.Tasks?.OfType<LocationQuestTask>() ?? Enumerable.Empty<LocationQuestTask>()
                                     from requirement in task.Requirements
                                     select requirement.Icon;
+
+            visitor.Visit(requirementIcons1, visitNulls: false);
 
             var requirementIcons2 = from quest in this.Quests
-                                    where quest != null
-                                    from task in quest.Tasks.OfType<MobQuestTask>()
+                                    from task in quest?.Tasks?.OfType<MobQuestTask>() ?? Enumerable.Empty<MobQuestTask>()
                                     from requirement in task.Requirements
                                     select requirement.Icon;
 
-            var allItems = Enumerable.Empty<ItemStack>()
-                                     .Concat(bagItems)
-                                     .Concat(questIcons)
-                                     .Concat(questRewardsCommon)
-                                     .Concat(questRewardsPickOne)
-                                     .Concat(requirements)
-                                     .Concat(requirementIcons1)
-                                     .Concat(requirementIcons2);
-
-            visitor.Begin();
-            foreach (var item in allItems.Where(item => item != null))
-            {
-                visitor.Visit(item);
-            }
+            visitor.Visit(requirementIcons2, visitNulls: false);
 
             visitor.End();
         }
